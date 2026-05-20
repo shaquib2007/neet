@@ -12,8 +12,10 @@ document.addEventListener('DOMContentLoaded', function () {
 // Initialize dashboard
 function initializeDashboard() {
     setupTabNavigation();
+    AnalyticsEngine.init();
     setupTopicTracker();
     loadDashboardData();
+    updateDashboardDisplay();
 }
 
 // === TAB MANAGER ===
@@ -95,6 +97,238 @@ const TabManager = {
 function setupTabNavigation() {
     TabManager.init();
 }
+
+// ============================================
+// === ANALYTICS ENGINE ===
+// ============================================
+// Calculates all metrics for the NEET operating system
+
+const AnalyticsEngine = {
+    // Configuration
+    storageKey: 'neetAnalytics',
+    daysLeft: 31,
+    currentPhase: 'PHASE 3',
+
+    // Initialize analytics
+    init: function () {
+        this.loadOrCreateAnalytics();
+        this.updateDashboard();
+        console.log('📊 Analytics Engine initialized');
+    },
+
+    // Load or create analytics data
+    loadOrCreateAnalytics: function () {
+        const saved = localStorage.getItem(this.storageKey);
+        if (!saved) {
+            this.createDefaultAnalytics();
+        } else {
+            this.data = JSON.parse(saved);
+        }
+    },
+
+    // Create default analytics structure
+    createDefaultAnalytics: function () {
+        this.data = {
+            metadata: {
+                daysLeft: this.daysLeft,
+                phase: this.currentPhase,
+                totalMarks: 720,
+                targetScore: 600,
+                createdDate: new Date().toISOString()
+            },
+            subjects: {
+                biology: { progress: 0, completed: 0, total: 20, marks: 0 },
+                chemistry: { progress: 0, completed: 0, total: 25, marks: 0 },
+                physics: { progress: 0, completed: 0, total: 15, marks: 0 }
+            },
+            phases: {
+                'PHASE 1': { progress: 0, status: 'pending' },
+                'PHASE 2': { progress: 0, status: 'pending' },
+                'PHASE 3': { progress: 0, status: 'pending' },
+                'PHASE 4': { progress: 0, status: 'pending' }
+            },
+            mocks: [],
+            dailyProgress: [],
+            errorLog: [],
+            revisions: []
+        };
+        this.save();
+    },
+
+    // Save analytics to localStorage
+    save: function () {
+        localStorage.setItem(this.storageKey, JSON.stringify(this.data));
+    },
+
+    // ============================================
+    // OVERALL STATISTICS
+    // ============================================
+
+    getOverallProgress: function () {
+        const allChapters = ChapterDatabase.getAllChapters();
+        const totalProgress = allChapters.reduce((sum, ch) => sum + ch.progress, 0);
+        return Math.round(totalProgress / allChapters.length);
+    },
+
+    getOverallCompletion: function () {
+        const allChapters = ChapterDatabase.getAllChapters();
+        const completed = allChapters.filter(ch => ch.progress === 100).length;
+        return Math.round((completed / allChapters.length) * 100);
+    },
+
+    getExpectedMarks: function () {
+        const allChapters = ChapterDatabase.getAllChapters();
+        let expectedMarks = 0;
+        allChapters.forEach(ch => {
+            expectedMarks += (ch.marks * ch.progress) / 100;
+        });
+        return Math.round(expectedMarks);
+    },
+
+    getReadinessScore: function () {
+        // Readiness = (Overall Progress % + Completion % + Confidence %) / 3
+        const overall = this.getOverallProgress();
+        const completion = this.getOverallCompletion();
+
+        const allChapters = ChapterDatabase.getAllChapters();
+        const avgConfidence = Math.round(
+            allChapters.reduce((sum, ch) => sum + ch.confidence, 0) / allChapters.length
+        );
+
+        return Math.round((overall + completion + avgConfidence) / 3);
+    },
+
+    // ============================================
+    // SUBJECT STATISTICS
+    // ============================================
+
+    getSubjectProgress: function (subject) {
+        const chapters = ChapterDatabase.getChaptersBySubject(subject);
+        const totalProgress = chapters.reduce((sum, ch) => sum + ch.progress, 0);
+        return Math.round(totalProgress / chapters.length);
+    },
+
+    getSubjectCompletion: function (subject) {
+        const chapters = ChapterDatabase.getChaptersBySubject(subject);
+        const completed = chapters.filter(ch => ch.progress === 100).length;
+        return Math.round((completed / chapters.length) * 100);
+    },
+
+    getSubjectStats: function (subject) {
+        const chapters = ChapterDatabase.getChaptersBySubject(subject);
+        const totalMarks = ChapterDatabase.getTotalMarksBySubject(subject);
+        const completed = chapters.filter(ch => ch.progress === 100).length;
+        const weak = chapters.filter(ch => ch.status === 'weak').length;
+        const strong = chapters.filter(ch => ch.status === 'strong').length;
+
+        let expectedMarks = 0;
+        chapters.forEach(ch => {
+            expectedMarks += (ch.marks * ch.progress) / 100;
+        });
+
+        return {
+            subject,
+            totalChapters: chapters.length,
+            completedChapters: completed,
+            completionPercent: this.getSubjectCompletion(subject),
+            progress: this.getSubjectProgress(subject),
+            totalMarks,
+            expectedMarks: Math.round(expectedMarks),
+            weakChapters: weak,
+            strongChapters: strong,
+            avgConfidence: Math.round(
+                chapters.reduce((sum, ch) => sum + ch.confidence, 0) / chapters.length
+            )
+        };
+    },
+
+    // ============================================
+    // WEAK AREAS & FOCUS
+    // ============================================
+
+    getWeakChapters: function (limit = 10) {
+        return ChapterDatabase.getAllChapters()
+            .filter(ch => ch.status === 'weak')
+            .sort((a, b) => b.marks - a.marks)
+            .slice(0, limit);
+    },
+
+    getHighPriorityWeak: function () {
+        return ChapterDatabase.getAllChapters()
+            .filter(ch => ch.status === 'weak' && ch.priority === 'high');
+    },
+
+    getNotStartedChapters: function () {
+        return ChapterDatabase.getAllChapters()
+            .filter(ch => ch.progress === 0);
+    },
+
+    getPartialChapters: function () {
+        return ChapterDatabase.getAllChapters()
+            .filter(ch => ch.progress > 0 && ch.progress < 100);
+    },
+
+    // ============================================
+    // PHASE TRACKING
+    // ============================================
+
+    getPhaseProgress: function (phase) {
+        // Calculate which chapters belong to this phase
+        // This is simplified - can be enhanced with actual phase data
+        const phases = {
+            'PHASE 1': { type: 'foundation', percent: 0.30 },
+            'PHASE 2': { type: 'comprehensive', percent: 0.50 },
+            'PHASE 3': { type: 'mocks', percent: 0.80 },
+            'PHASE 4': { type: 'final', percent: 1.0 }
+        };
+
+        return phases[phase] || { type: 'unknown', percent: 0 };
+    },
+
+    // ============================================
+    // MOCK ANALYTICS
+    // ============================================
+
+    addMockScore: function (mockNumber, score, totalMarks = 720) {
+        this.data.mocks.push({
+            mockNumber,
+            score,
+            totalMarks,
+            percentage: Math.round((score / totalMarks) * 100),
+            date: new Date().toISOString()
+        });
+        this.save();
+    },
+
+    getMockTrend: function () {
+        return this.data.mocks.sort((a, b) =>
+            new Date(a.date) - new Date(b.date)
+        );
+    },
+
+    getAverageMockScore: function () {
+        if (this.data.mocks.length === 0) return 0;
+        const total = this.data.mocks.reduce((sum, m) => sum + m.score, 0);
+        return Math.round(total / this.data.mocks.length);
+    },
+
+    // ============================================
+    // DASHBOARD UPDATE
+    // ============================================
+
+    updateDashboard: function () {
+        const overallProgress = this.getOverallProgress();
+        const readiness = this.getReadinessScore();
+        const expected = this.getExpectedMarks();
+
+        // Update dashboard elements
+        const dashboardElement = document.getElementById('overview');
+        if (dashboardElement) {
+            // Stats will update in real-time
+            console.log(`📊 Dashboard: ${overallProgress}% progress, ${readiness}% readiness, ${expected} expected marks`);
+        }
+    }
+};
 
 // === TOPIC TRACKER ===
 // === CHAPTER TRACKER MANAGER ===
@@ -557,6 +791,76 @@ function loadDashboardData() {
     // In a real app, this would fetch data from a server
     // For now, we'll use mock data stored in localStorage
     loadTopicsFromStorage();
+}
+
+// ============================================
+// === UPDATE DASHBOARD DISPLAY ===
+// ============================================
+// Updates dashboard with real-time analytics data
+
+function updateDashboardDisplay() {
+    try {
+        // Get analytics data
+        const overallProgress = AnalyticsEngine.getOverallProgress();
+        const readiness = AnalyticsEngine.getReadinessScore();
+        const expected = AnalyticsEngine.getExpectedMarks();
+        const biologyStats = AnalyticsEngine.getSubjectStats('biology');
+        const chemistryStats = AnalyticsEngine.getSubjectStats('chemistry');
+        const physicsStats = AnalyticsEngine.getSubjectStats('physics');
+        const weakChapters = AnalyticsEngine.getWeakChapters(5);
+        const notStarted = AnalyticsEngine.getNotStartedChapters().length;
+
+        // Log dashboard data
+        console.log('📊 Dashboard Updated:');
+        console.log(`  Overall Progress: ${overallProgress}%`);
+        console.log(`  Readiness Score: ${readiness}%`);
+        console.log(`  Expected Marks: ${expected}/720`);
+        console.log(`  Biology: ${biologyStats.completionPercent}% (${biologyStats.expectedMarks}/${biologyStats.totalMarks})`);
+        console.log(`  Chemistry: ${chemistryStats.completionPercent}% (${chemistryStats.expectedMarks}/${chemistryStats.totalMarks})`);
+        console.log(`  Physics: ${physicsStats.completionPercent}% (${physicsStats.expectedMarks}/${physicsStats.totalMarks})`);
+        console.log(`  Weak Chapters: ${weakChapters.length}`);
+        console.log(`  Not Started: ${notStarted} chapters`);
+
+        // Update dashboard stats (if elements exist)
+        updateDashboardStats({
+            overallProgress,
+            readiness,
+            expectedMarks: expected,
+            biologyStats,
+            chemistryStats,
+            physicsStats,
+            weakChapters,
+            daysLeft: AnalyticsEngine.daysLeft,
+            currentPhase: AnalyticsEngine.currentPhase
+        });
+
+    } catch (error) {
+        console.error('❌ Error updating dashboard:', error);
+    }
+}
+
+// Helper function to update specific dashboard elements
+function updateDashboardStats(stats) {
+    // This function will update HTML elements with real data
+    // Implement as needed based on your dashboard HTML structure
+
+    // Example: Update progress elements
+    const progressElements = document.querySelectorAll('[data-stat="progress"]');
+    progressElements.forEach(el => {
+        if (el) el.textContent = `${stats.overallProgress}%`;
+    });
+
+    // Example: Update readiness
+    const readinessElements = document.querySelectorAll('[data-stat="readiness"]');
+    readinessElements.forEach(el => {
+        if (el) el.textContent = `${stats.readiness}%`;
+    });
+
+    // Example: Update expected marks
+    const expectedElements = document.querySelectorAll('[data-stat="expected"]');
+    expectedElements.forEach(el => {
+        if (el) el.textContent = stats.expectedMarks;
+    });
 }
 
 // === LOCAL STORAGE ===
