@@ -25,6 +25,7 @@
             <button class="nav-btn" data-tab="chemistry-tracker">Chemistry</button>
             <button class="nav-btn" data-tab="physics-tracker">Physics</button>
             <button class="nav-btn" data-tab="schedule">Schedule</button>
+            <button class="nav-btn" data-tab="daily-tracker">📅 Daily</button>
             <button class="nav-btn" data-tab="analytics">Analytics</button>
         </nav>
 
@@ -488,6 +489,186 @@
             </div>
         </section>
 
+        <!-- ============================================
+             DAILY TRACKER TAB
+             ============================================ -->
+        <section id="daily-tracker" class="tab-content">
+
+            <!-- ── Top Header Row ── -->
+            <div class="dt-top-header">
+                <div class="dt-header-left">
+                    <div class="dt-day-badge" id="dt-day-counter">Day 1</div>
+                    <div>
+                        <h2 class="dt-title">Daily Study Tracker</h2>
+                        <span class="dt-days-left" id="dt-days-left">31 days to NEET</span>
+                    </div>
+                </div>
+                <div class="dt-header-right">
+                    <div class="dt-clock-box">
+                        <span class="dt-clock-icon">🕐</span>
+                        <span id="dt-live-clock" class="dt-clock">00:00:00</span>
+                    </div>
+                    <div class="dt-streak-box">
+                        <div id="dt-streak-val" class="dt-streak-main">🔥 0 day streak</div>
+                        <div id="dt-longest-streak" class="dt-streak-sub">Best: 0 days</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── 7-Day Activity Rings ── -->
+            <div class="dt-card dt-rings-card">
+                <h3 class="dt-card-title">📆 Weekly Activity</h3>
+                <div id="dt-streak-rings" class="dt-rings-row"></div>
+            </div>
+
+            <!-- ── Stats Row ── -->
+            <div class="dt-stats-row">
+
+                <!-- Productivity Ring -->
+                <div class="dt-stat-card dt-prod-card">
+                    <svg class="dt-ring-svg" viewBox="0 0 80 80">
+                        <circle cx="40" cy="40" r="36" fill="none" stroke="#e5e7eb" stroke-width="6"/>
+                        <circle id="dt-prod-ring-fill" cx="40" cy="40" r="36" fill="none"
+                            stroke="#667eea" stroke-width="6" stroke-linecap="round"
+                            stroke-dasharray="226" stroke-dashoffset="226"
+                            transform="rotate(-90 40 40)"/>
+                        <text x="40" y="44" text-anchor="middle" font-size="14" font-weight="700" fill="#333" id="dt-ring-label">0%</text>
+                    </svg>
+                    <div class="dt-stat-info">
+                        <div class="dt-stat-value" id="dt-productivity">0%</div>
+                        <div class="dt-stat-label">Productivity</div>
+                    </div>
+                </div>
+
+                <div class="dt-stat-card">
+                    <div class="dt-stat-icon">📚</div>
+                    <div class="dt-stat-info">
+                        <div class="dt-stat-value" id="dt-study-hours">0.0h</div>
+                        <div class="dt-stat-label">Hours Today</div>
+                    </div>
+                </div>
+
+                <div class="dt-stat-card">
+                    <div class="dt-stat-icon">⏱</div>
+                    <div class="dt-stat-info">
+                        <div class="dt-stat-value" id="dt-total-hours">0.0h</div>
+                        <div class="dt-stat-label">Total Hours</div>
+                    </div>
+                </div>
+
+                <div class="dt-stat-card">
+                    <div class="dt-stat-icon">❌</div>
+                    <div class="dt-stat-info">
+                        <div class="dt-stat-value" id="dt-mistakes-today">0</div>
+                        <div class="dt-stat-label">Mistakes Today</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ── Main 2-Column Layout ── -->
+            <div class="dt-main-grid">
+
+                <!-- Left Column -->
+                <div class="dt-col-left">
+
+                    <!-- Study Session Timer -->
+                    <div class="dt-card" id="dt-timer-box">
+                        <h3 class="dt-card-title">⏱ Study Session Timer</h3>
+                        <div class="dt-session-controls">
+                            <select id="dt-session-subject" class="dt-select">
+                                <option value="Biology">🧬 Biology</option>
+                                <option value="Chemistry">🧪 Chemistry</option>
+                                <option value="Physics">⚛️ Physics</option>
+                                <option value="Revision">🔄 Revision</option>
+                                <option value="PYQ">📝 PYQ Practice</option>
+                                <option value="Mock">🎯 Mock Test</option>
+                                <option value="General">📖 General</option>
+                            </select>
+                            <input type="text" id="dt-session-label" class="dt-input"
+                                placeholder="Session label (e.g. Cell Biology NCERT)">
+                        </div>
+                        <div class="dt-timer-display">
+                            <span id="dt-session-timer" class="dt-timer-text">00:00</span>
+                        </div>
+                        <div class="dt-session-btns">
+                            <button id="dt-start-session" class="dt-btn dt-btn-green">
+                                ▶ Start Session
+                            </button>
+                            <button id="dt-stop-session" class="dt-btn dt-btn-red" style="display:none">
+                                ⏹ Stop & Save
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Sessions Log -->
+                    <div class="dt-card">
+                        <h3 class="dt-card-title">📋 Today's Sessions</h3>
+                        <div id="dt-sessions-list" class="dt-sessions-list"></div>
+                    </div>
+
+                    <!-- 7-Day History -->
+                    <div class="dt-card">
+                        <h3 class="dt-card-title">📊 Past 7 Days</h3>
+                        <div id="dt-history-list" class="dt-history-list"></div>
+                    </div>
+
+                </div>
+
+                <!-- Right Column -->
+                <div class="dt-col-right">
+
+                    <!-- Daily Checklist -->
+                    <div class="dt-card">
+                        <div class="dt-checklist-header">
+                            <h3 class="dt-card-title">✅ Daily Checklist</h3>
+                            <span id="dt-checklist-label" class="dt-check-label">0/8 done</span>
+                        </div>
+                        <div class="dt-checklist-bar">
+                            <div class="dt-checklist-fill" id="dt-checklist-fill" style="width:0%"></div>
+                        </div>
+                        <div id="dt-checklist" class="dt-checklist"></div>
+                    </div>
+
+                    <!-- Mistake Logger -->
+                    <div class="dt-card">
+                        <h3 class="dt-card-title">❌ Mistake Logger</h3>
+                        <div class="dt-mistake-form">
+                            <input type="text" id="dt-mistake-input" class="dt-input"
+                                placeholder="Describe the mistake or concept you got wrong...">
+                            <select id="dt-mistake-type" class="dt-select">
+                                <option value="conceptual">💡 Conceptual</option>
+                                <option value="careless">😅 Careless</option>
+                                <option value="guessed">🎲 Guessed Wrong</option>
+                                <option value="formula">📐 Formula Error</option>
+                                <option value="reading">👀 Misread Question</option>
+                            </select>
+                            <button id="dt-add-mistake-btn" class="dt-btn dt-btn-red">+ Log Mistake</button>
+                        </div>
+                        <div id="dt-mistakes-list" class="dt-mistakes-list"></div>
+                    </div>
+
+                    <!-- Daily Notes -->
+                    <div class="dt-card">
+                        <div class="dt-notes-header">
+                            <h3 class="dt-card-title">📝 Daily Notes</h3>
+                            <span id="dt-notes-saved" class="dt-saved-badge" style="opacity:0">Saved ✓</span>
+                        </div>
+                        <textarea id="dt-notes-area" class="dt-notes-area"
+                            placeholder="Write today's plan, insights, or reminders here..."></textarea>
+                    </div>
+
+                    <!-- Reset (Dev) -->
+                    <div class="dt-card dt-reset-card">
+                        <button id="dt-reset-today" class="dt-btn dt-btn-ghost">🔄 Reset Today</button>
+                        <p class="dt-reset-note">Archives today and starts fresh (history preserved)</p>
+                    </div>
+
+                </div>
+            </div>
+
+        </section>
+
         <!-- Analytics Tab -->
         <section id="analytics" class="tab-content">
             <h2>Performance Analytics</h2>
@@ -525,6 +706,8 @@
     <script src="js/chapterDatabase.js"></script>
     <!-- Then load main script -->
     <script src="js/script.js"></script>
+    <!-- Daily Tracker System -->
+    <script src="js/dailyTracker.js"></script>
 </body>
 
 </html>

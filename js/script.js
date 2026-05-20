@@ -19,6 +19,10 @@ function initializeDashboard() {
     PhysicsTracker.init();
     loadDashboardData();
     updateDashboardDisplay();
+    // Daily Tracker — loaded after script.js, init deferred to its own load
+    if (typeof DailyTracker !== 'undefined') {
+        DailyTracker.init();
+    }
 }
 
 // === TAB MANAGER ===
