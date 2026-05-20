@@ -418,3 +418,143 @@ main {
         padding: 1rem 0.5rem;
     }
 }
+
+/* ===== ADVANCED ANIMATIONS ===== */
+
+/* Stagger Animation */
+.stat-card {
+    animation: slideInUp 0.6s ease-out;
+}
+
+.stat-card:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.stat-card:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.stat-card:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.stat-card:nth-child(4) {
+    animation-delay: 0.4s;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Pulse Animation */
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.stat-value {
+    animation: pulse 3s ease-in-out infinite;
+}
+
+/* Smooth Transitions */
+* {
+    transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
+}
+
+/* Hover Effects */
+.topic-card,
+.schedule-day,
+.analytics-card {
+    border-left: 4px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.topic-card:hover {
+    border-left-color: #667eea;
+}
+
+.schedule-day:hover {
+    border-left-color: #764ba2;
+}
+
+/* Active State */
+.nav-btn.active {
+    animation: highlightActive 0.3s ease-out;
+}
+
+@keyframes highlightActive {
+    0% {
+        transform: scale(0.95);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Loading State */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* Focus States for Accessibility */
+button:focus,
+input:focus {
+    outline: 2px solid #667eea;
+    outline-offset: 2px;
+}
+
+/* Print Styles */
+@media print {
+
+    .nav-btn,
+    .add-btn {
+        display: none;
+    }
+
+    body {
+        background: white;
+    }
+
+    .stat-card,
+    .topic-card,
+    .analytics-card {
+        box-shadow: none;
+        border: 1px solid #ddd;
+    }
+}
+
+/* ===== PERFORMANCE OPTIMIZATIONS ===== */
+
+/* GPU Acceleration */
+.progress-fill,
+.stat-card,
+.topic-card {
+    will-change: transform;
+    transform: translate3d(0, 0, 0);
+}
+
+/* Smooth Scrolling */
+html {
+    scroll-behavior: smooth;
+}

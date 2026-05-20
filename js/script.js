@@ -180,7 +180,83 @@ function updateDashboard() {
     animateProgressBars();
 }
 
+// === ADVANCED FEATURES ===
+
+// Data Management System
+const DashboardData = {
+    getStats: function () {
+        return {
+            daysStudied: 45,
+            topicsCovered: 28,
+            totalTopics: 50,
+            accuracy: 78,
+            totalHours: 245
+        };
+    },
+
+    getPerformance: function () {
+        return {
+            physics: 85,
+            chemistry: 78,
+            biology: 72,
+            math: 88
+        };
+    },
+
+    getMockTestScores: function () {
+        return [
+            { test: 1, score: 680, total: 720 },
+            { test: 2, score: 695, total: 720 },
+            { test: 3, score: 710, total: 720 }
+        ];
+    }
+};
+
+// Progress Update Function
+function updateProgressBar(element, newWidth) {
+    if (!element) return;
+    element.style.transition = 'width 0.5s ease';
+    element.style.width = newWidth + '%';
+}
+
+// Stats Update Function
+function updateStatCard(cardElement, newValue) {
+    if (!cardElement) return;
+    const valueElement = cardElement.querySelector('.stat-value');
+    if (valueElement) {
+        valueElement.textContent = newValue;
+    }
+}
+
+// Quick Study Session Timer
+function startStudySession(minutes) {
+    console.log(`📚 Study session started for ${minutes} minutes`);
+    const endTime = Date.now() + (minutes * 60 * 1000);
+
+    const interval = setInterval(() => {
+        const remaining = Math.max(0, Math.ceil((endTime - Date.now()) / 1000));
+        if (remaining === 0) {
+            clearInterval(interval);
+            alert('✅ Study session complete! Take a break!');
+        }
+    }, 1000);
+}
+
 // Export functions for console access
 window.addTopic = addTopic;
 window.saveTopicsToStorage = saveTopicsToStorage;
 window.updateDashboard = updateDashboard;
+window.DashboardData = DashboardData;
+window.startStudySession = startStudySession;
+window.updateProgressBar = updateProgressBar;
+window.updateStatCard = updateStatCard;
+
+// Development Mode Helpers
+if (localStorage.getItem('devMode')) {
+    console.log('🔧 Developer Mode Enabled');
+    console.log('Available commands:');
+    console.log('- addTopic("Topic Name")');
+    console.log('- startStudySession(30) // 30 minutes');
+    console.log('- DashboardData.getStats()');
+    console.log('- saveTopicsToStorage()');
+}
