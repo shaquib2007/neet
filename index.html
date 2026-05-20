@@ -602,11 +602,26 @@
             <!-- Daily Notes -->
             <div class="sch-card">
                 <div class="sch-card-header">
-                    <h3 class="sch-card-title">📝 Daily Notes & Revision Reminders</h3>
+                    <h3 class="sch-card-title">📝 Daily Notes &amp; Revision Reminders</h3>
                     <span id="sch-notes-saved" class="sch-saved-tag" style="opacity:0">Saved ✓</span>
                 </div>
+
                 <textarea id="sch-notes" class="sch-notes"
                     placeholder="Write today's plan, weak topics, mistakes, revision reminders..."></textarea>
+
+                <!-- Revision Reminder quick-add -->
+                <div class="sch-reminder-row">
+                    <input type="text" id="sch-reminder-input" class="sch-input"
+                        placeholder="📌 Add revision reminder (e.g. Revise Genetics tomorrow)">
+                    <button id="sch-reminder-add" class="sch-btn sch-btn-outline">+ Reminder</button>
+                </div>
+                <ul id="sch-reminders-list" class="sch-reminders-list"></ul>
+
+                <!-- Action Buttons -->
+                <div class="sch-notes-footer">
+                    <button id="sch-notes-save" class="sch-btn sch-btn-primary">💾 Save Notes</button>
+                    <button id="sch-notes-clear" class="sch-btn sch-btn-ghost">🗑 Clear</button>
+                </div>
             </div>
 
         </section>

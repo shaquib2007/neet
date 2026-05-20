@@ -24,13 +24,14 @@ const ScheduleEngine = {
 
     _fresh: function () {
         return {
-            startDate:     new Date().toDateString(),   // Day 1 = today
-            completedDays: [],                          // [1, 2, 5, ...]
+            startDate:     new Date().toDateString(),
+            completedDays: [],
             streak:        0,
             lastDoneDate:  null,
-            hoursLog:      {},                          // { 'Thu May 21 2026': 6.5 }
-            checklist:     {},                          // { 'Thu May 21 2026': [true,false,...] }
-            notes:         {},                          // { 'Thu May 21 2026': 'text' }
+            hoursLog:      {},
+            checklist:     {},
+            notes:         {},
+            reminders:     [],  // [{ id, text, date, done }]
         };
     },
 
@@ -128,9 +129,9 @@ const ScheduleEngine = {
     _load: function () {
         const saved = localStorage.getItem(this.storageKey);
         this.data = saved ? JSON.parse(saved) : this._fresh();
-        // Migrate missing keys
-        if (!this.data.notes)    this.data.notes = {};
-        if (!this.data.checklist)this.data.checklist = {};
+        if (!this.data.notes)     this.data.notes = {};
+        if (!this.data.checklist) this.data.checklist = {};
+        if (!this.data.reminders) this.data.reminders = [];
     },
 
     _save: function () {
@@ -221,6 +222,29 @@ const ScheduleEngine = {
     saveNotes: function (text) {
         this.data.notes[this._todayStr()] = text;
         this._save();
+    },
+
+    addReminder: function (text) {
+        if (!text || !text.trim()) return;
+        this.data.reminders.unshift({
+            id:   Date.now(),
+            text: text.trim(),
+            date: this._todayStr(),
+            done: false,
+        });
+        this._save();
+        this._renderNotes();
+    },
+
+    toggleReminder: function (id) {
+        const r = this.data.reminders.find(x => x.id === id);
+        if (r) { r.done = !r.done; this._save(); this._renderNotes(); }
+    },
+
+    deleteReminder: function (id) {
+        this.data.reminders = this.data.reminders.filter(x => x.id !== id);
+        this._save();
+        this._renderNotes();
     },
 
     _updateStreak: function () {
@@ -469,8 +493,41 @@ const ScheduleEngine = {
     },
 
     _renderNotes: function () {
+        // Notes textarea
         const area = document.getElementById('sch-notes');
         if (area) area.value = this.data.notes[this._todayStr()] || '';
+
+        // Reminders list
+        const list = document.getElementById('sch-reminders-list');
+        if (!list) return;
+
+        if (this.data.reminders.length === 0) {
+            list.innerHTML = '<li class="sch-reminder-empty">No reminders yet. Add one above!</li>';
+            return;
+        }
+
+        list.innerHTML = this.data.reminders.map(r => `
+            <li class="sch-reminder-item ${r.done ? 'done' : ''}" data-id="${r.id}">
+                <button class="sch-rem-check" data-id="${r.id}" title="Mark done">${r.done ? '✅' : '📌'}</button>
+                <span class="sch-rem-text">${r.text}</span>
+                <span class="sch-rem-date">${r.date}</span>
+                <button class="sch-rem-del" data-id="${r.id}" title="Delete">&times;</button>
+            </li>
+        `).join('');
+
+        // Listeners on rendered items
+        list.querySelectorAll('.sch-rem-check').forEach(btn => {
+            btn.addEventListener('click', e => {
+                e.stopPropagation();
+                this.toggleReminder(parseInt(e.currentTarget.getAttribute('data-id')));
+            });
+        });
+        list.querySelectorAll('.sch-rem-del').forEach(btn => {
+            btn.addEventListener('click', e => {
+                e.stopPropagation();
+                this.deleteReminder(parseInt(e.currentTarget.getAttribute('data-id')));
+            });
+        });
     },
 
     // ─────────────────────────────────────────
@@ -489,16 +546,61 @@ const ScheduleEngine = {
             });
         }
 
-        // Notes autosave
-        const notesArea = document.getElementById('sch-notes');
+        // Notes — explicit Save button
+        const notesSaveBtn = document.getElementById('sch-notes-save');
+        const notesArea    = document.getElementById('sch-notes');
+        const notesTag     = document.getElementById('sch-notes-saved');
+
+        const _showSaved = () => {
+            if (notesTag) {
+                notesTag.style.opacity = 1;
+                setTimeout(() => notesTag.style.opacity = 0, 2000);
+            }
+        };
+
+        if (notesSaveBtn && notesArea) {
+            notesSaveBtn.addEventListener('click', () => {
+                this.saveNotes(notesArea.value);
+                notesSaveBtn.textContent = '✓ Saved!';
+                notesSaveBtn.style.background = 'linear-gradient(135deg,#22c55e,#16a34a)';
+                _showSaved();
+                setTimeout(() => {
+                    notesSaveBtn.textContent = '💾 Save Notes';
+                    notesSaveBtn.style.background = '';
+                }, 2000);
+            });
+        }
+
+        // Notes — Clear button
+        const notesClearBtn = document.getElementById('sch-notes-clear');
+        if (notesClearBtn && notesArea) {
+            notesClearBtn.addEventListener('click', () => {
+                if (!notesArea.value.trim() || confirm('Clear today\'s notes?')) {
+                    notesArea.value = '';
+                    this.saveNotes('');
+                }
+            });
+        }
+
+        // Notes — auto-save on typing (in background, silent)
         if (notesArea) {
             notesArea.addEventListener('input', e => {
                 clearTimeout(this._notesTimer);
-                this._notesTimer = setTimeout(() => {
-                    this.saveNotes(e.target.value);
-                    const tag = document.getElementById('sch-notes-saved');
-                    if (tag) { tag.style.opacity = 1; setTimeout(() => tag.style.opacity = 0, 1500); }
-                }, 800);
+                this._notesTimer = setTimeout(() => this.saveNotes(e.target.value), 1500);
+            });
+        }
+
+        // Revision Reminder — Add button
+        const reminderAddBtn = document.getElementById('sch-reminder-add');
+        const reminderInput  = document.getElementById('sch-reminder-input');
+        if (reminderAddBtn && reminderInput) {
+            reminderAddBtn.addEventListener('click', () => {
+                this.addReminder(reminderInput.value);
+                reminderInput.value = '';
+                reminderInput.focus();
+            });
+            reminderInput.addEventListener('keydown', e => {
+                if (e.key === 'Enter') reminderAddBtn.click();
             });
         }
     },
