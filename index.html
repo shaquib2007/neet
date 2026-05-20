@@ -807,32 +807,73 @@
 
         </section>
 
-        <!-- Analytics Tab -->
+        <!-- Analytics Tab — Performance Engine -->
         <section id="analytics" class="tab-content">
-            <h2>Performance Analytics</h2>
-            <div class="analytics-grid">
+            <div class="an-header">
+                <div>
+                    <h2 class="an-title">NEET Performance Analytics</h2>
+                    <p class="an-subtitle">Dynamic readiness &amp; weak topic detection from your live progress</p>
+                </div>
+            </div>
+
+            <!-- NEET Readiness Score -->
+            <div class="an-hero-card">
+                <div class="an-hero-left">
+                    <h3 class="an-card-label">NEET Readiness Score</h3>
+                    <p class="an-hero-desc">Weighted blend of mastery, completion, confidence, revisions, mocks &amp; consistency</p>
+                    <span id="an-readiness-label" class="an-readiness-badge an-ready-low">—</span>
+                    <p id="an-readiness-sub" class="an-readiness-sub">—</p>
+                </div>
+                <div class="an-hero-ring-wrap">
+                    <svg class="an-ring-svg" viewBox="0 0 120 120">
+                        <circle cx="60" cy="60" r="54" fill="none" stroke="#e5e7eb" stroke-width="10"/>
+                        <circle id="an-readiness-ring" cx="60" cy="60" r="54" fill="none"
+                            stroke="#667eea" stroke-width="10" stroke-linecap="round"
+                            transform="rotate(-90 60 60)"/>
+                    </svg>
+                    <span id="an-readiness-value" class="an-ring-value">0%</span>
+                </div>
+            </div>
+
+            <div class="an-two-col">
+                <!-- Readiness breakdown -->
+                <div class="an-card">
+                    <h3 class="an-card-title">Readiness Breakdown</h3>
+                    <div id="an-readiness-breakdown" class="an-breakdown"></div>
+                </div>
+
+                <!-- Weakest chapters -->
+                <div class="an-card an-weak-card">
+                    <div class="an-card-head-row">
+                        <h3 class="an-card-title">⚠️ Weakest Chapters</h3>
+                        <span id="an-weak-count" class="an-pill">—</span>
+                    </div>
+                    <p class="an-card-sub">Ranked by completion, revisions, confidence, PYQ &amp; mistakes</p>
+                    <div id="an-weak-list" class="an-weak-list"></div>
+                </div>
+            </div>
+
+            <!-- Legacy analytics row (now dynamic) -->
+            <div class="analytics-grid an-legacy-grid">
                 <div class="analytics-card">
                     <h3>Subject Performance</h3>
-                    <div class="mini-chart">
-                        <div class="chart-bar" style="height: 85%">Physics<span>85%</span></div>
-                        <div class="chart-bar" style="height: 78%">Chemistry<span>78%</span></div>
-                        <div class="chart-bar" style="height: 72%">Biology<span>72%</span></div>
-                        <div class="chart-bar" style="height: 88%">Math<span>88%</span></div>
+                    <div id="an-subject-chart" class="mini-chart">
+                        <div class="chart-bar an-subject-bar" data-subject="physics" style="height: 8%">Physics<span>0%</span></div>
+                        <div class="chart-bar an-subject-bar" data-subject="chemistry" style="height: 8%">Chemistry<span>0%</span></div>
+                        <div class="chart-bar an-subject-bar" data-subject="biology" style="height: 8%">Biology<span>0%</span></div>
                     </div>
                 </div>
 
                 <div class="analytics-card">
                     <h3>Weekly Study Hours</h3>
-                    <p class="stat-value">12.5h</p>
-                    <p>Avg per week</p>
+                    <p id="an-weekly-hours" class="stat-value">0h</p>
+                    <p>Avg last 7 active days</p>
                 </div>
 
                 <div class="analytics-card">
                     <h3>Mock Test Scores</h3>
-                    <ul class="score-list">
-                        <li>Test 1: <strong>680/720</strong></li>
-                        <li>Test 2: <strong>695/720</strong></li>
-                        <li>Test 3: <strong>710/720</strong></li>
+                    <ul id="an-mock-list" class="score-list">
+                        <li class="an-mock-empty">Loading…</li>
                     </ul>
                 </div>
             </div>
@@ -848,6 +889,8 @@
     <script src="js/dailyTracker.js"></script>
     <!-- 31-Day Schedule Engine -->
     <script src="js/scheduleEngine.js"></script>
+    <!-- Performance Engine (Analytics tab) -->
+    <script src="js/performanceEngine.js"></script>
 </body>
 
 </html>
