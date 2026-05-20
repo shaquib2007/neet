@@ -2719,3 +2719,323 @@ html {
     flex-shrink: 0;
 }
 .sch-rem-del:hover { color: #ef4444; }
+
+/* ============================================================
+   ROADMAP TAB — Strategy PDF
+   ============================================================ */
+
+.rm-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+}
+
+.rm-title {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: #1f2937;
+    margin: 0 0 0.35rem;
+}
+
+.rm-subtitle {
+    margin: 0;
+    color: #6b7280;
+    font-size: 0.95rem;
+}
+
+.rm-status {
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 0.45rem 0.9rem;
+    border-radius: 999px;
+    white-space: nowrap;
+    letter-spacing: 0.02em;
+}
+
+.rm-status-ready {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.rm-status-missing {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.rm-pdf-card {
+    margin-bottom: 1.25rem;
+}
+
+.rm-drop-zone {
+    border: 2px dashed #c7d2fe;
+    border-radius: 16px;
+    background: linear-gradient(145deg, #fafbff 0%, #f3f4ff 100%);
+    padding: 2rem 1.5rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    transition: border-color 0.25s ease, background 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+    cursor: default;
+}
+
+.rm-drop-zone:hover,
+.rm-drop-zone.is-dragover {
+    border-color: #667eea;
+    background: linear-gradient(145deg, #eef2ff 0%, #e0e7ff 100%);
+    box-shadow: 0 8px 28px rgba(102, 126, 234, 0.15);
+    transform: translateY(-2px);
+}
+
+.rm-drop-zone.is-dragover {
+    border-style: solid;
+}
+
+.rm-drop-icon {
+    margin-bottom: 0.75rem;
+    filter: drop-shadow(0 4px 8px rgba(102, 126, 234, 0.2));
+}
+
+.rm-drop-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #374151;
+    margin: 0 0 0.5rem;
+}
+
+.rm-drop-hint,
+.rm-drop-filename {
+    margin: 0.25rem 0;
+    color: #6b7280;
+    font-size: 0.9rem;
+}
+
+.rm-drop-hint code,
+.rm-drop-filename code,
+.rm-drop-steps code {
+    background: #e0e7ff;
+    color: #4338ca;
+    padding: 0.15rem 0.45rem;
+    border-radius: 6px;
+    font-size: 0.85em;
+}
+
+.rm-drop-filename strong {
+    color: #667eea;
+}
+
+.rm-drop-steps {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1.25rem;
+}
+
+.rm-step {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #4b5563;
+    background: white;
+    padding: 0.4rem 0.75rem;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.rm-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.rm-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.85rem 1.5rem;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+
+.rm-btn:hover:not(.is-disabled) {
+    transform: translateY(-2px);
+}
+
+.rm-btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.35);
+}
+
+.rm-btn-primary:hover:not(.is-disabled) {
+    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.45);
+}
+
+.rm-btn-outline {
+    background: white;
+    color: #667eea;
+    border: 2px solid #c7d2fe;
+}
+
+.rm-btn-outline:hover:not(.is-disabled) {
+    border-color: #667eea;
+    background: #f5f3ff;
+}
+
+.rm-btn.is-disabled {
+    opacity: 0.55;
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
+.rm-btn-icon {
+    font-size: 1.1rem;
+}
+
+.rm-deploy-note {
+    text-align: center;
+    font-size: 0.82rem;
+    color: #9ca3af;
+    margin: 1.25rem 0 0;
+}
+
+.rm-tip-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    background: white;
+    border-radius: 14px;
+    padding: 1rem 1.25rem;
+    border-left: 4px solid #667eea;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+    font-size: 0.9rem;
+    color: #4b5563;
+}
+
+.rm-tip-icon {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.rm-btn-sm {
+    padding: 0.55rem 1rem;
+    font-size: 0.85rem;
+}
+
+.rm-btn-ghost {
+    background: transparent;
+    color: #6b7280;
+    border: none;
+    box-shadow: none;
+}
+
+.rm-btn-ghost:hover:not(.is-disabled) {
+    color: #667eea;
+    background: #f3f4f6;
+    transform: none;
+}
+
+/* Schedule tab — compact PDF strip */
+.sch-pdf-strip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    background: white;
+    border-radius: 14px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e5e7eb;
+    transition: box-shadow 0.25s ease;
+}
+
+.sch-pdf-strip:hover {
+    box-shadow: 0 6px 22px rgba(102, 126, 234, 0.12);
+}
+
+.sch-pdf-strip-left {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    flex-wrap: wrap;
+    flex: 1;
+    min-width: 200px;
+}
+
+.sch-pdf-strip-icon {
+    font-size: 1.75rem;
+    line-height: 1;
+    background: linear-gradient(135deg, #eef2ff, #e0e7ff);
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+}
+
+.sch-pdf-strip-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0 0 0.15rem;
+}
+
+.sch-pdf-strip-meta {
+    margin: 0;
+    font-size: 0.78rem;
+    color: #9ca3af;
+}
+
+.sch-pdf-strip-meta code {
+    background: #f3f4f6;
+    color: #6366f1;
+    padding: 0.1rem 0.35rem;
+    border-radius: 4px;
+    font-size: 0.75em;
+}
+
+.sch-pdf-strip-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+@media (max-width: 600px) {
+    .rm-actions {
+        flex-direction: column;
+    }
+
+    .rm-btn {
+        width: 100%;
+    }
+
+    .rm-drop-steps {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .sch-pdf-strip {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .sch-pdf-strip-actions {
+        flex-direction: column;
+    }
+
+    .sch-pdf-strip-actions .rm-btn {
+        width: 100%;
+    }
+}

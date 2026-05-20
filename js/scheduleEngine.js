@@ -24,14 +24,17 @@ const ScheduleEngine = {
 
     _fresh: function () {
         return {
-            startDate:     new Date().toDateString(),
-            completedDays: [],
-            streak:        0,
-            lastDoneDate:  null,
-            hoursLog:      {},
-            checklist:     {},
-            notes:         {},
-            reminders:     [],  // [{ id, text, date, done }]
+            startDate:        new Date().toDateString(),
+            completedDays:    [],
+            streak:           0,
+            lastDoneDate:     null,
+            hoursLog:         {},
+            checklist:        {},
+            notes:            {},
+            reminders:        [],   // [{ id, text, date, done, auto }]
+            activePhaseId:    1,    // Phase Engine: 1-4, auto-updated
+            phaseUnlocked:    [1],  // which phases are unlocked
+            lastPhaseChange:  null, // date of last auto-transition
         };
     },
 
@@ -129,9 +132,13 @@ const ScheduleEngine = {
     _load: function () {
         const saved = localStorage.getItem(this.storageKey);
         this.data = saved ? JSON.parse(saved) : this._fresh();
-        if (!this.data.notes)     this.data.notes = {};
-        if (!this.data.checklist) this.data.checklist = {};
-        if (!this.data.reminders) this.data.reminders = [];
+        // Migrate: add missing keys for old saves
+        if (!this.data.notes)           this.data.notes = {};
+        if (!this.data.checklist)       this.data.checklist = {};
+        if (!this.data.reminders)       this.data.reminders = [];
+        if (!this.data.activePhaseId)   this.data.activePhaseId = 1;
+        if (!this.data.phaseUnlocked)   this.data.phaseUnlocked = [1];
+        if (!this.data.lastPhaseChange) this.data.lastPhaseChange = null;
     },
 
     _save: function () {
@@ -139,20 +146,156 @@ const ScheduleEngine = {
     },
 
     // ─────────────────────────────────────────
-    // HELPERS
+    // PHASE ENGINE CORE
     // ─────────────────────────────────────────
 
-    _todayStr: function () { return new Date().toDateString(); },
+    /*
+     * _computeActivePhase()
+     * ─────────────────────
+     * Logic:
+     *   1. Check if current phase is 100% complete.
+     *   2. If yes → unlock next phase, set activePhaseId, inject reminders.
+     *   3. Active phase = highest unlocked phase (unless manually locked).
+     *
+     * This runs every time days are toggled or the page loads.
+     */
+    _computeActivePhase: function () {
+        let changed = false;
 
-    // Day number since startDate (1-indexed, capped at 31)
-    _currentDay: function () {
-        const start = new Date(this.data.startDate);
-        const now   = new Date();
-        const diff  = Math.floor((now - start) / 86400000) + 1;
-        return Math.min(Math.max(diff, 1), 31);
+        for (let i = 0; i < this.phases.length - 1; i++) {
+            const phase = this.phases[i];
+            const pct   = this._phasePct(phase.id);
+
+            // If this phase is 100% complete AND next phase not yet unlocked
+            if (pct === 100 && !this.data.phaseUnlocked.includes(phase.id + 1)) {
+                this.data.phaseUnlocked.push(phase.id + 1);
+                this.data.activePhaseId  = phase.id + 1;
+                this.data.lastPhaseChange = this._todayStr();
+                changed = true;
+                console.log(`🚀 Phase Engine: Phase ${phase.id} complete → Activating Phase ${phase.id + 1}`);
+
+                // Auto-inject revision reminders on phase transition
+                this._autoInjectRevisionReminders(phase.id + 1);
+            }
+        }
+
+        // Active phase = highest unlocked
+        if (this.data.phaseUnlocked.length > 0) {
+            this.data.activePhaseId = Math.max(...this.data.phaseUnlocked);
+        }
+
+        if (changed) this._save();
+        return this.phases.find(p => p.id === this.data.activePhaseId) || this.phases[0];
     },
 
-    // Which phase owns a day number
+    /*
+     * _autoInjectRevisionReminders(phaseId)
+     * ──────────────────────────────────────
+     * On entering Phase 2: remind to revise Phase 1 topics.
+     * On entering Phase 3: remind weak-topic analysis + mock.
+     * On entering Phase 4: final sprint reminders.
+     * Avoids duplicates by checking the `auto` flag.
+     */
+    _autoInjectRevisionReminders: function (phaseId) {
+        const alreadyInjected = this.data.reminders.some(
+            r => r.auto && r.autoPhase === phaseId
+        );
+        if (alreadyInjected) return;
+
+        const reminders = {
+            2: [
+                '🔄 Revise Phase 1: Human Physiology & Genetics',
+                '🔄 Revise Phase 1: Chemical Bonding & GOC',
+                '🔄 Revise Phase 1: Electrostatics & Optics',
+                '📌 Start spaced repetition — revisit Day 1–5 topics',
+            ],
+            3: [
+                '🎯 Attempt full 720-mark mock test today',
+                '🔍 Analyse weak topics from Phase 1 & Phase 2',
+                '❌ Review all logged mistakes in error log',
+                '📐 Revise all formula sheets before mock',
+            ],
+            4: [
+                '🚀 Final Sprint: Only revision — no new topics',
+                '📋 Read through all short notes twice',
+                '🧠 Practice mnemonics for Biology & Organic Chem',
+                '💪 Trust your preparation — stay confident!',
+            ],
+        };
+
+        const list = reminders[phaseId] || [];
+        list.forEach(text => {
+            this.data.reminders.unshift({
+                id:        Date.now() + Math.random(),
+                text,
+                date:      this._todayStr(),
+                done:      false,
+                auto:      true,       // flag: auto-generated
+                autoPhase: phaseId,
+            });
+        });
+    },
+
+    /*
+     * _getReadiness()
+     * ───────────────
+     * Readiness % = weighted average of all phase completions.
+     * Weights: Phase1=25%, Phase2=30%, Phase3=30%, Phase4=15%
+     */
+    _getReadiness: function () {
+        const weights = { 1: 0.25, 2: 0.30, 3: 0.30, 4: 0.15 };
+        let score = 0;
+        this.phases.forEach(p => {
+            score += this._phasePct(p.id) * weights[p.id];
+        });
+        return Math.round(score);
+    },
+
+    /*
+     * _getDynamicTasks()
+     * ──────────────────
+     * Returns today's task list based on:
+     *  - active phase
+     *  - current day number
+     * Returns array of { icon, task, priority } objects.
+     */
+    _getDynamicTasks: function () {
+        const phase   = this._computeActivePhase();
+        const dayNum  = this._currentDay();
+        const baseTasks = phase.daily.map(t => ({ icon: '📌', task: t, priority: 'normal' }));
+
+        // Extra tasks injected by day position within phase
+        const dayInPhase = dayNum - phase.days[0] + 1;
+        const totalDays  = phase.days[1] - phase.days[0] + 1;
+        const progress   = dayInPhase / totalDays;
+
+        const extras = [];
+
+        if (phase.id === 1) {
+            if (progress >= 0.5) extras.push({ icon: '⚡', task: 'Start timed MCQ practice (30 min)', priority: 'high' });
+            if (progress >= 0.8) extras.push({ icon: '🔄', task: 'Self-assess weak chapters', priority: 'high' });
+        }
+        if (phase.id === 2) {
+            extras.push({ icon: '🔄', task: 'Revise 1 Phase 1 topic (spaced repetition)', priority: 'high' });
+            if (progress >= 0.6) extras.push({ icon: '🎯', task: 'Start mixed-subject mock sections', priority: 'normal' });
+        }
+        if (phase.id === 3) {
+            extras.push({ icon: '📝', task: 'Attempt today\'s full mock (720 marks)', priority: 'critical' });
+            extras.push({ icon: '🔍', task: 'Analyse yesterday\'s mock errors', priority: 'high' });
+        }
+        if (phase.id === 4) {
+            extras.push({ icon: '📋', task: 'Read short notes — no new topics', priority: 'critical' });
+            extras.push({ icon: '💪', task: 'Confidence drill: 20 easy questions', priority: 'normal' });
+        }
+
+        return [...extras, ...baseTasks];
+    },
+
+    // ─────────────────────────────────────────
+    // ORIGINAL HELPERS (unchanged)
+    // ─────────────────────────────────────────
+
+    // Which phase owns a day number (by day range)
     _phaseForDay: function (dayNum) {
         return this.phases.find(p => dayNum >= p.days[0] && dayNum <= p.days[1]) || this.phases[0];
     },
@@ -174,15 +317,16 @@ const ScheduleEngine = {
         return this.data.checklist[key];
     },
 
-    // Productivity % = (checklist done / total) * 70 + (hours / 8) * 30
+    // Productivity % = (checklist done / total) * 60 + (hours / 8) * 25 + readiness * 0.15
     _productivity: function () {
-        const cl    = this._todayChecklist();
-        const done  = cl.filter(Boolean).length;
-        const total = cl.length;
-        const clPct = total > 0 ? (done / total) * 70 : 0;
-        const h     = this.data.hoursLog[this._todayStr()] || 0;
-        const hPct  = Math.min((h / 8) * 30, 30);
-        return Math.round(clPct + hPct);
+        const cl      = this._todayChecklist();
+        const done    = cl.filter(Boolean).length;
+        const total   = cl.length;
+        const clPct   = total > 0 ? (done / total) * 60 : 0;
+        const h       = this.data.hoursLog[this._todayStr()] || 0;
+        const hPct    = Math.min((h / 8) * 25, 25);
+        const rPct    = this._getReadiness() * 0.15;
+        return Math.round(clPct + hPct + rPct);
     },
 
     // ─────────────────────────────────────────
@@ -198,8 +342,16 @@ const ScheduleEngine = {
             this.data.completedDays.sort((a, b) => a - b);
         }
         this._updateStreak();
+        // ← Phase Engine: check if a phase just completed
+        const prevPhase = this.data.activePhaseId;
+        this._computeActivePhase();
+        const newPhase  = this.data.activePhaseId;
         this._save();
         this.render();
+        // Show transition toast if phase changed
+        if (newPhase !== prevPhase) {
+            this._showPhaseToast(newPhase);
+        }
     },
 
     toggleChecklist: function (idx) {
@@ -248,7 +400,6 @@ const ScheduleEngine = {
     },
 
     _updateStreak: function () {
-        // Recalculate streak: consecutive completed days ending at current/last day
         const sorted = [...this.data.completedDays].sort((a, b) => a - b);
         let streak = 0, prev = -1;
         for (const d of sorted) {
@@ -256,6 +407,37 @@ const ScheduleEngine = {
             prev = d;
         }
         this.data.streak = streak;
+    },
+
+    /*
+     * _showPhaseToast(phaseId)
+     * ─────────────────────────
+     * Displays a congratulations banner when a new phase is unlocked.
+     */
+    _showPhaseToast: function (phaseId) {
+        const phase = this.phases.find(p => p.id === phaseId);
+        if (!phase) return;
+
+        // Remove existing toast
+        const old = document.getElementById('phase-toast');
+        if (old) old.remove();
+
+        const toast = document.createElement('div');
+        toast.id = 'phase-toast';
+        toast.className = 'phase-toast';
+        toast.innerHTML = `
+            <div class="phase-toast-inner" style="border-color:${phase.color}">
+                <span class="phase-toast-icon">🎉</span>
+                <div>
+                    <div class="phase-toast-title">Phase Unlocked!</div>
+                    <div class="phase-toast-sub">${phase.name}: ${phase.label} is now active</div>
+                </div>
+                <button class="phase-toast-close" onclick="this.closest('#phase-toast').remove()">×</button>
+            </div>
+        `;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.classList.add('show'), 50);
+        setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 400); }, 5000);
     },
 
     // ─────────────────────────────────────────
