@@ -14,6 +14,7 @@ function initializeDashboard() {
     setupTabNavigation();
     AnalyticsEngine.init();
     setupTopicTracker();
+    BiologyTracker.init();
     loadDashboardData();
     updateDashboardDisplay();
 }
@@ -1010,3 +1011,212 @@ if (localStorage.getItem('devMode')) {
     console.log('- DashboardData.getStats()');
     console.log('- saveTopicsToStorage()');
 }
+// ============================================
+// === BIOLOGY TRACKER ===
+// ============================================
+// Displays all 20 NEET Biology chapters from database
+
+const BiologyTracker = {
+    storageKey: 'biologyTracker',
+    containerId: 'biologyChaptersContainer',
+
+    // Initialize Biology Tracker
+    init: function () {
+        this.render();
+        this.attachEventListeners();
+        this.updateStats();
+        console.log('🧬 Biology Tracker initialized');
+    },
+
+    // Render all 20 biology chapters
+    render: function () {
+        const container = document.getElementById(this.containerId);
+        if (!container) return;
+
+        const bioChapters = ChapterDatabase.getChaptersBySubject('biology');
+        container.innerHTML = '';
+
+        const priorityColors = {
+            'high': 'priority-high',
+            'medium': 'priority-medium',
+            'low': 'priority-low'
+        };
+
+        const statusEmojis = {
+            'strong': '💪 Strong',
+            'neutral': '➡️ Neutral',
+            'weak': '⚠️ Weak'
+        };
+
+        bioChapters.forEach(chapter => {
+            const card = document.createElement('div');
+            card.className = 'chapter-card biology-card';
+            card.setAttribute('data-chapter-id', chapter.id);
+            card.setAttribute('data-progress', chapter.progress);
+            card.setAttribute('data-revisions', chapter.revisions);
+            card.setAttribute('data-status', chapter.status);
+
+            const expectedMarks = Math.round((chapter.marks * chapter.progress) / 100);
+
+            card.innerHTML = `
+                <div class="chapter-header">
+                    <span class="priority-badge ${priorityColors[chapter.priority]}">${chapter.priority.toUpperCase()}</span>
+                    <span class="marks-badge">${chapter.marks} marks</span>
+                </div>
+                <div class="chapter-checkbox-area">
+                    <input type="checkbox" class="bio-chapter-checkbox" data-chapter-id="${chapter.id}" ${chapter.progress === 100 ? 'checked' : ''}>
+                </div>
+                <div class="chapter-content">
+                    <h4 class="chapter-title">${chapter.name}</h4>
+                    <p class="chapter-subtitle">${chapter.topics.slice(0, 2).join(', ')}</p>
+                    <div class="status-label ${chapter.status}">${statusEmojis[chapter.status]}</div>
+                    <div class="chapter-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${chapter.progress}%"></div>
+                        </div>
+                        <span class="progress-percent">${chapter.progress}%</span>
+                    </div>
+                    <p class="chapter-meta">
+                        <span class="revision-count">🔄 ${chapter.revisions > 0 ? 'Revised ' + chapter.revisions + 'x' : 'Not revised'}</span>
+                        • <span class="expected-marks">Expected: ${expectedMarks}/${chapter.marks}</span>
+                    </p>
+                    <div class="chapter-actions">
+                        <input type="range" class="progress-slider" data-chapter-id="${chapter.id}" min="0" max="100" value="${chapter.progress}" title="Update progress">
+                        <input type="number" class="revision-input" data-chapter-id="${chapter.id}" min="0" max="10" value="${chapter.revisions}" title="Revision count" style="width: 50px;">
+                        <button class="btn-small incr-revision" data-chapter-id="${chapter.id}" title="Increment revisions">+Rev</button>
+                    </div>
+                </div>
+            `;
+
+            container.appendChild(card);
+        });
+
+        console.log(`📚 Rendered ${bioChapters.length} biology chapters`);
+    },
+
+    // Attach event listeners
+    attachEventListeners: function () {
+        const container = document.getElementById(this.containerId);
+        if (!container) return;
+
+        // Progress slider
+        container.querySelectorAll('.progress-slider').forEach(slider => {
+            slider.addEventListener('input', (e) => {
+                const chapterId = e.target.getAttribute('data-chapter-id');
+                const progress = parseInt(e.target.value);
+                this.updateChapterProgress(chapterId, progress);
+            });
+        });
+
+        // Revision counter
+        container.querySelectorAll('.revision-input').forEach(input => {
+            input.addEventListener('change', (e) => {
+                const chapterId = e.target.getAttribute('data-chapter-id');
+                const revisions = parseInt(e.target.value);
+                this.updateChapterRevisions(chapterId, revisions);
+            });
+        });
+
+        // Increment revision button
+        container.querySelectorAll('.incr-revision').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const chapterId = e.target.getAttribute('data-chapter-id');
+                const input = container.querySelector(`.revision-input[data-chapter-id="${chapterId}"]`);
+                const newVal = (parseInt(input.value) || 0) + 1;
+                input.value = newVal;
+                this.updateChapterRevisions(chapterId, newVal);
+            });
+        });
+
+        // Completion checkbox
+        container.querySelectorAll('.bio-chapter-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', (e) => {
+                const chapterId = e.target.getAttribute('data-chapter-id');
+                if (e.target.checked) {
+                    // Set to 100% when checked
+                    const slider = container.querySelector(`.progress-slider[data-chapter-id="${chapterId}"]`);
+                    slider.value = 100;
+                    this.updateChapterProgress(chapterId, 100);
+                }
+            });
+        });
+    },
+
+    // Update chapter progress
+    updateChapterProgress: function (chapterId, progress) {
+        const chapter = ChapterDatabase.getAllChapters().find(ch => ch.id === chapterId);
+        if (!chapter) return;
+
+        chapter.progress = Math.max(0, Math.min(100, progress));
+
+        // Update UI
+        const container = document.getElementById(this.containerId);
+        const card = container.querySelector(`[data-chapter-id="${chapterId}"]`);
+        if (card) {
+            card.setAttribute('data-progress', chapter.progress);
+            const fill = card.querySelector('.progress-fill');
+            if (fill) fill.style.width = chapter.progress + '%';
+            const percent = card.querySelector('.progress-percent');
+            if (percent) percent.textContent = chapter.progress + '%';
+
+            const checkbox = card.querySelector('.bio-chapter-checkbox');
+            if (checkbox && chapter.progress === 100 && !checkbox.checked) {
+                checkbox.checked = true;
+            } else if (checkbox && chapter.progress < 100 && checkbox.checked) {
+                checkbox.checked = false;
+            }
+
+            // Update expected marks
+            const expectedMarks = Math.round((chapter.marks * chapter.progress) / 100);
+            const expected = card.querySelector('.expected-marks');
+            if (expected) expected.textContent = `Expected: ${expectedMarks}/${chapter.marks}`;
+        }
+
+        this.updateStats();
+        console.log(`📈 ${chapterId}: ${chapter.progress}% progress`);
+    },
+
+    // Update chapter revisions
+    updateChapterRevisions: function (chapterId, revisions) {
+        const chapter = ChapterDatabase.getAllChapters().find(ch => ch.id === chapterId);
+        if (!chapter) return;
+
+        chapter.revisions = Math.max(0, Math.min(10, revisions));
+
+        // Update UI
+        const container = document.getElementById(this.containerId);
+        const card = container.querySelector(`[data-chapter-id="${chapterId}"]`);
+        if (card) {
+            card.setAttribute('data-revisions', chapter.revisions);
+            const revCount = card.querySelector('.revision-count');
+            if (revCount) {
+                revCount.textContent = chapter.revisions > 0 ? `🔄 Revised ${chapter.revisions}x` : '🔄 Not revised';
+            }
+            const input = card.querySelector('.revision-input');
+            if (input) input.value = chapter.revisions;
+        }
+
+        this.updateStats();
+        console.log(`🔄 ${chapterId}: ${chapter.revisions} revisions`);
+    },
+
+    // Update stats display
+    updateStats: function () {
+        const bioChapters = ChapterDatabase.getChaptersBySubject('biology');
+        const completed = bioChapters.filter(ch => ch.progress === 100).length;
+        const totalMarks = ChapterDatabase.getTotalMarksBySubject('biology');
+        let expectedMarks = 0;
+
+        bioChapters.forEach(ch => {
+            expectedMarks += Math.round((ch.marks * ch.progress) / 100);
+        });
+
+        const completedEl = document.getElementById('bio-completed');
+        const marksEl = document.getElementById('bio-marks');
+
+        if (completedEl) completedEl.textContent = `${completed}/20 Complete`;
+        if (marksEl) marksEl.textContent = `${expectedMarks}/${totalMarks} marks`;
+
+        console.log(`📊 Biology: ${completed}/20 chapters, ${expectedMarks}/${totalMarks} marks`);
+    }
+};

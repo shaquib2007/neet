@@ -21,6 +21,7 @@
         <nav class="dashboard-nav">
             <button class="nav-btn active" data-tab="overview">Overview</button>
             <button class="nav-btn" data-tab="tracker">Tracker</button>
+            <button class="nav-btn" data-tab="biology-tracker">Biology</button>
             <button class="nav-btn" data-tab="schedule">Schedule</button>
             <button class="nav-btn" data-tab="analytics">Analytics</button>
         </nav>
@@ -379,6 +380,24 @@
                     </div>
                 </div>
 
+            </div>
+        </section>
+
+        <!-- Biology Tracker Tab -->
+        <section id="biology-tracker" class="tab-content">
+            <div class="tracker-header">
+                <div>
+                    <h2>🧬 Biology Tracker - All 20 Chapters</h2>
+                    <p class="tracker-subtitle">Complete NEET Biology Syllabus</p>
+                </div>
+                <div class="tracker-stats">
+                    <span id="bio-completed">0/20 Complete</span>
+                    <span id="bio-marks">0/248 marks</span>
+                </div>
+            </div>
+
+            <div id="biologyChaptersContainer" class="chapters-container">
+                <!-- Biology chapters will be loaded from database -->
             </div>
         </section>
 
