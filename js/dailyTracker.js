@@ -281,6 +281,21 @@ const DailyTracker = {
         }
     },
 
+    // ── Delete a mistake permanently
+    deleteMistake: function (id) {
+        const idx = this.data.mistakes.findIndex(x => x.id === id);
+        if (idx === -1) return;
+        // Decrement today's count only if it was logged today
+        const m = this.data.mistakes[idx];
+        if (m.date === new Date().toDateString() && this.data.today.mistakeCount > 0) {
+            this.data.today.mistakeCount--;
+        }
+        this.data.mistakes.splice(idx, 1);
+        this.save();
+        this.renderMistakes();
+        this.renderStats();
+    },
+
     // ── Daily notes
     saveNotes: function (text) {
         this.data.dailyNotes = text;
@@ -427,15 +442,25 @@ const DailyTracker = {
                 </div>
                 <div class="dt-mistake-meta">
                     <span class="dt-mistake-date">${m.date}</span>
-                    <button class="dt-btn-resolve" data-id="${m.id}">${m.resolved ? '↩ Reopen' : '✓ Fixed'}</button>
+                    <div class="dt-mistake-actions">
+                        <button class="dt-btn-resolve" data-id="${m.id}">${m.resolved ? '↩ Reopen' : '✓ Fixed'}</button>
+                        <button class="dt-btn-delete" data-id="${m.id}" title="Delete this mistake">🗑️</button>
+                    </div>
                 </div>
             </div>
         `).join('');
 
-        // Listeners
+        // Listeners — resolve
         container.querySelectorAll('.dt-btn-resolve').forEach(btn => {
             btn.addEventListener('click', e => {
                 this.toggleMistakeResolved(parseInt(e.target.getAttribute('data-id')));
+            });
+        });
+
+        // Listeners — delete
+        container.querySelectorAll('.dt-btn-delete').forEach(btn => {
+            btn.addEventListener('click', e => {
+                this.deleteMistake(parseInt(e.target.getAttribute('data-id')));
             });
         });
     },
