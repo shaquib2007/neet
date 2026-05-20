@@ -255,6 +255,308 @@ main {
     margin: 0;
 }
 
+/* ===== CHAPTER TRACKER STYLES ===== */
+
+/* Tracker Header */
+.tracker-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.tracker-header h2 {
+    margin: 0;
+    font-size: 1.8rem;
+}
+
+.tracker-subtitle {
+    color: #999;
+    font-size: 0.9rem;
+    margin: 0.5rem 0 0 0;
+}
+
+/* Subject Filter Buttons */
+.subject-filter {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    padding: 0.6rem 1.2rem;
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #666;
+    transition: all 0.3s ease;
+}
+
+.filter-btn:hover {
+    border-color: #667eea;
+    color: #667eea;
+}
+
+.filter-btn.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-color: #667eea;
+}
+
+/* Chapters Container */
+.chapters-container {
+    display: grid;
+    gap: 2.5rem;
+}
+
+/* Subject Group */
+.subject-group {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+    border-left: 4px solid #667eea;
+    padding: 1.5rem;
+    border-radius: 12px;
+    animation: slideInUp 0.4s ease-out;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    to {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+}
+
+/* Subject Header */
+.subject-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid rgba(102, 126, 234, 0.2);
+}
+
+.subject-name {
+    margin: 0;
+    font-size: 1.3rem;
+    color: #333;
+}
+
+.subject-progress {
+    background: #667eea;
+    color: white;
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+/* Chapters List */
+.chapters-list {
+    display: grid;
+    gap: 1rem;
+}
+
+/* Chapter Card */
+.chapter-card {
+    background: white;
+    border: 2px solid #f0f0f0;
+    border-radius: 10px;
+    padding: 1.25rem;
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.chapter-card:hover {
+    border-color: #667eea;
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.1);
+    transform: translateX(4px);
+}
+
+/* Checkbox Area */
+.chapter-checkbox-area {
+    display: flex;
+    align-items: center;
+    margin-top: 0.25rem;
+}
+
+.chapter-checkbox {
+    width: 22px;
+    height: 22px;
+    cursor: pointer;
+    accent-color: #667eea;
+}
+
+/* Chapter Content */
+.chapter-content {
+    flex: 1;
+}
+
+.chapter-title {
+    margin: 0 0 0.25rem 0;
+    font-size: 1.05rem;
+    color: #333;
+    font-weight: 600;
+}
+
+.chapter-subtitle {
+    margin: 0 0 0.75rem 0;
+    color: #999;
+    font-size: 0.85rem;
+}
+
+/* Chapter Progress */
+.chapter-progress {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.chapter-progress .progress-bar {
+    height: 6px;
+    background: #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+    flex: 1;
+}
+
+.chapter-progress .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    transition: width 0.5s ease;
+    border-radius: 10px;
+}
+
+.progress-percent {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #667eea;
+    min-width: 40px;
+    text-align: right;
+}
+
+.chapter-meta {
+    margin: 0;
+    color: #bbb;
+    font-size: 0.8rem;
+}
+
+/* Delete Button */
+.chapter-delete-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #ddd;
+    cursor: pointer;
+    padding: 0;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.chapter-delete-btn:hover {
+    background: #fee;
+    color: #ff6b6b;
+}
+
+/* Checked/Completed State */
+.chapter-card input[type="checkbox"]:checked~.chapter-content .chapter-title,
+.chapter-card input[type="checkbox"]:checked~.chapter-content .chapter-subtitle {
+    text-decoration: line-through;
+    color: #bbb;
+}
+
+/* Hidden/Filter State */
+.chapter-card.hidden {
+    display: none;
+}
+
+.subject-group.hidden {
+    display: none;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .tracker-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .subject-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .chapter-card {
+        flex-wrap: wrap;
+    }
+
+    .subject-filter {
+        justify-content: flex-start;
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+    }
+
+    .filter-btn {
+        white-space: nowrap;
+    }
+}
+
+@media (max-width: 480px) {
+    .chapters-container {
+        gap: 1.5rem;
+    }
+
+    .chapter-card {
+        padding: 1rem;
+        gap: 0.75rem;
+    }
+
+    .chapter-title {
+        font-size: 0.95rem;
+    }
+
+    .subject-name {
+        font-size: 1.1rem;
+    }
+
+    .subject-progress {
+        font-size: 0.75rem;
+        padding: 0.3rem 0.6rem;
+    }
+}
+
 /* Schedule Grid */
 .schedule-grid {
     display: grid;

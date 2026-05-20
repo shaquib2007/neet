@@ -97,63 +97,226 @@ function setupTabNavigation() {
 }
 
 // === TOPIC TRACKER ===
-function setupTopicTracker() {
-    const addBtn = document.getElementById('addTopicBtn');
-    if (addBtn) {
-        addBtn.addEventListener('click', showAddTopicForm);
-    }
+// === CHAPTER TRACKER MANAGER ===
+// Professional chapter management system
+const ChapterTracker = {
+    // Configuration
+    storageKey: 'chapters',
 
-    // Setup checkbox listeners
-    document.querySelectorAll('.topic-checkbox').forEach(checkbox => {
-        checkbox.addEventListener('change', function () {
-            const topicCard = this.closest('.topic-card');
-            if (this.checked) {
-                topicCard.style.opacity = '0.7';
+    // Initialize
+    init: function () {
+        this.setupFilters();
+        this.setupButtons();
+        this.setupCheckboxes();
+        this.loadData();
+    },
+
+    // Setup filter buttons
+    setupFilters: function () {
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => this.handleFilter(e));
+        });
+    },
+
+    // Setup add chapter button
+    setupButtons: function () {
+        const addBtn = document.getElementById('addChapterBtn');
+        if (addBtn) {
+            addBtn.addEventListener('click', () => this.showAddChapterForm());
+        }
+
+        // Setup delete buttons
+        this.setupDeleteButtons();
+    },
+
+    // Setup delete buttons for all chapters
+    setupDeleteButtons: function () {
+        const deleteButtons = document.querySelectorAll('.chapter-delete-btn');
+        deleteButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const chapterId = btn.getAttribute('data-chapter-id');
+                if (confirm('Delete this chapter?')) {
+                    this.deleteChapter(chapterId);
+                }
+            });
+        });
+    },
+
+    // Setup checkboxes
+    setupCheckboxes: function () {
+        const checkboxes = document.querySelectorAll('.chapter-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', (e) => {
+                const chapterId = checkbox.getAttribute('data-chapter-id');
+                const isChecked = checkbox.checked;
+                this.updateChapterCompletion(chapterId, isChecked);
+            });
+        });
+    },
+
+    // Handle filter
+    handleFilter: function (event) {
+        const filterBtn = event.target;
+        const filterValue = filterBtn.getAttribute('data-filter');
+
+        // Update active button
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        filterBtn.classList.add('active');
+
+        // Filter chapters
+        this.filterChapters(filterValue);
+        console.log(`🔍 Filtered by: ${filterValue}`);
+    },
+
+    // Filter chapters by subject
+    filterChapters: function (subject) {
+        const subjectGroups = document.querySelectorAll('.subject-group');
+
+        if (subject === 'all') {
+            // Show all
+            subjectGroups.forEach(group => group.classList.remove('hidden'));
+        } else {
+            // Show only selected subject
+            subjectGroups.forEach(group => {
+                if (group.getAttribute('data-subject') === subject) {
+                    group.classList.remove('hidden');
+                } else {
+                    group.classList.add('hidden');
+                }
+            });
+        }
+    },
+
+    // Add new chapter
+    showAddChapterForm: function () {
+        const chapterName = prompt('Enter chapter name (e.g., "Physics - Chapter 1"):');
+        if (chapterName) {
+            const subject = prompt('Enter subject (physics/chemistry/biology/math):');
+            if (subject && ['physics', 'chemistry', 'biology', 'math'].includes(subject.toLowerCase())) {
+                this.addChapter(chapterName, subject.toLowerCase());
             } else {
-                topicCard.style.opacity = '1';
+                alert('Please enter a valid subject!');
+            }
+        }
+    },
+
+    // Add chapter to DOM
+    addChapter: function (name, subject) {
+        const chapterId = `${subject.substring(0, 2)}-${Date.now()}`;
+        const container = document.querySelector(`[data-subject="${subject}"] .chapters-list`);
+
+        if (!container) {
+            alert('Subject not found!');
+            return;
+        }
+
+        const chapterCard = document.createElement('div');
+        chapterCard.className = 'chapter-card';
+        chapterCard.setAttribute('data-chapter-id', chapterId);
+        chapterCard.setAttribute('data-subject', subject);
+        chapterCard.setAttribute('data-progress', '0');
+
+        chapterCard.innerHTML = `
+            <div class="chapter-checkbox-area">
+                <input type="checkbox" class="chapter-checkbox" data-chapter-id="${chapterId}">
+            </div>
+            <div class="chapter-content">
+                <h4 class="chapter-title">${name}</h4>
+                <p class="chapter-subtitle">Recently added</p>
+                <div class="chapter-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 0%"></div>
+                    </div>
+                    <span class="progress-percent">0%</span>
+                </div>
+                <p class="chapter-meta">Not started</p>
+            </div>
+            <button class="chapter-delete-btn" data-chapter-id="${chapterId}">×</button>
+        `;
+
+        container.appendChild(chapterCard);
+
+        // Add listeners to new elements
+        chapterCard.querySelector('.chapter-checkbox').addEventListener('change', (e) => {
+            this.updateChapterCompletion(chapterId, e.target.checked);
+        });
+
+        chapterCard.querySelector('.chapter-delete-btn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (confirm('Delete this chapter?')) {
+                this.deleteChapter(chapterId);
             }
         });
-    });
-}
 
-function showAddTopicForm() {
-    const topicName = prompt('Enter topic name:');
-    if (topicName) {
-        addTopic(topicName);
-    }
-}
+        // Save data
+        this.saveData();
+        console.log(`✅ Chapter added: ${name}`);
+    },
 
-function addTopic(name) {
-    const topicsList = document.getElementById('topicsList');
-    const newTopic = document.createElement('div');
-    newTopic.className = 'topic-card';
-    newTopic.innerHTML = `
-        <div class="topic-header">
-            <input type="checkbox" class="topic-checkbox">
-            <h3>${name}</h3>
-        </div>
-        <div class="topic-progress">
-            <div class="progress-bar">
-                <div class="progress-fill" style="width: 0%"></div>
-            </div>
-            <span>0%</span>
-        </div>
-        <p class="topic-date">Last studied: Just now</p>
-    `;
+    // Update chapter completion
+    updateChapterCompletion: function (chapterId, isCompleted) {
+        const chapterCard = document.querySelector(`[data-chapter-id="${chapterId}"]`);
+        if (!chapterCard) return;
 
-    topicsList.appendChild(newTopic);
-
-    // Add listener to new checkbox
-    newTopic.querySelector('.topic-checkbox').addEventListener('change', function () {
-        if (this.checked) {
-            newTopic.style.opacity = '0.7';
+        if (isCompleted) {
+            chapterCard.style.opacity = '0.7';
         } else {
-            newTopic.style.opacity = '1';
+            chapterCard.style.opacity = '1';
         }
-    });
 
-    // Save to localStorage
-    saveTopicsToStorage();
+        console.log(`📖 Chapter ${chapterId}: ${isCompleted ? 'Completed' : 'In Progress'}`);
+    },
+
+    // Delete chapter
+    deleteChapter: function (chapterId) {
+        const chapterCard = document.querySelector(`[data-chapter-id="${chapterId}"]`);
+        if (chapterCard) {
+            chapterCard.style.animation = 'fadeOut 0.3s ease-out';
+            setTimeout(() => {
+                chapterCard.remove();
+                this.saveData();
+                console.log(`🗑️ Chapter deleted: ${chapterId}`);
+            }, 300);
+        }
+    },
+
+    // Save data to localStorage
+    saveData: function () {
+        // In future, we'll save chapter data here
+        console.log('💾 Data saved to LocalStorage');
+    },
+
+    // Load data from localStorage
+    loadData: function () {
+        // In future, we'll load chapter data here
+        console.log('📂 Data loaded from LocalStorage');
+    },
+
+    // Get all chapters
+    getAllChapters: function () {
+        return document.querySelectorAll('.chapter-card');
+    },
+
+    // Get chapters by subject
+    getChaptersBySubject: function (subject) {
+        return document.querySelectorAll(`[data-subject="${subject}"]`);
+    },
+
+    // Get completion percentage
+    getCompletionPercentage: function () {
+        const allChapters = this.getAllChapters().length;
+        const completedChapters = document.querySelectorAll('.chapter-checkbox:checked').length;
+        return allChapters > 0 ? Math.round((completedChapters / allChapters) * 100) : 0;
+    }
+};
+
+// Old function name for backwards compatibility
+function setupTopicTracker() {
+    ChapterTracker.init();
 }
 
 // === LOAD DATA ===
@@ -293,8 +456,8 @@ function startStudySession(minutes) {
 }
 
 // Export functions for console access
-window.addTopic = addTopic;
-window.saveTopicsToStorage = saveTopicsToStorage;
+window.TabManager = TabManager;
+window.ChapterTracker = ChapterTracker;
 window.updateDashboard = updateDashboard;
 window.DashboardData = DashboardData;
 window.startStudySession = startStudySession;
