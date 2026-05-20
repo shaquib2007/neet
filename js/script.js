@@ -16,34 +16,84 @@ function initializeDashboard() {
     loadDashboardData();
 }
 
-// === TAB NAVIGATION ===
-function setupTabNavigation() {
-    const navButtons = document.querySelectorAll('.nav-btn');
-    const tabContents = document.querySelectorAll('.tab-content');
+// === TAB MANAGER ===
+// Clean, modular tab switching system
+const TabManager = {
+    // Configuration
+    navButtonSelector: '.nav-btn',
+    tabContentSelector: '.tab-content',
+    activeClass: 'active',
+    storageKey: 'activeTab',
+    defaultTab: 'overview',
 
-    navButtons.forEach(button => {
-        button.addEventListener('click', function () {
-            const tabName = this.getAttribute('data-tab');
+    // Initialize tabs
+    init: function () {
+        this.cacheDOM();
+        this.attachEventListeners();
+        this.restoreLastTab();
+    },
 
-            // Remove active class from all buttons and tabs
-            navButtons.forEach(btn => btn.classList.remove('active'));
-            tabContents.forEach(tab => tab.classList.remove('active'));
+    // Cache DOM elements for performance
+    cacheDOM: function () {
+        this.navButtons = document.querySelectorAll(this.navButtonSelector);
+        this.tabContents = document.querySelectorAll(this.tabContentSelector);
+    },
 
-            // Add active class to clicked button and corresponding tab
-            this.classList.add('active');
-            document.getElementById(tabName).classList.add('active');
-
-            // Save preference in localStorage
-            localStorage.setItem('activeTab', tabName);
+    // Attach click listeners to nav buttons
+    attachEventListeners: function () {
+        this.navButtons.forEach(button => {
+            button.addEventListener('click', (e) => this.handleTabClick(e));
         });
-    });
+    },
+
+    // Handle tab click
+    handleTabClick: function (event) {
+        const button = event.target;
+        const tabName = button.getAttribute('data-tab');
+
+        // Only switch if valid tab
+        if (tabName) {
+            this.switchTab(tabName);
+        }
+    },
+
+    // Switch to specific tab
+    switchTab: function (tabName) {
+        // Remove active from all
+        this.navButtons.forEach(btn => btn.classList.remove(this.activeClass));
+        this.tabContents.forEach(tab => tab.classList.remove(this.activeClass));
+
+        // Add active to selected
+        const button = document.querySelector(`[data-tab="${tabName}"]`);
+        const content = document.getElementById(tabName);
+
+        if (button && content) {
+            button.classList.add(this.activeClass);
+            content.classList.add(this.activeClass);
+
+            // Save preference
+            localStorage.setItem(this.storageKey, tabName);
+
+            // Optional: Log for debugging
+            console.log(`📑 Switched to: ${tabName}`);
+        }
+    },
 
     // Restore last viewed tab
-    const savedTab = localStorage.getItem('activeTab') || 'overview';
-    const savedButton = document.querySelector(`[data-tab="${savedTab}"]`);
-    if (savedButton) {
-        savedButton.click();
+    restoreLastTab: function () {
+        const savedTab = localStorage.getItem(this.storageKey) || this.defaultTab;
+        this.switchTab(savedTab);
+    },
+
+    // Get current active tab
+    getCurrentTab: function () {
+        return localStorage.getItem(this.storageKey) || this.defaultTab;
     }
+};
+
+// Old function name for backwards compatibility
+function setupTabNavigation() {
+    TabManager.init();
 }
 
 // === TOPIC TRACKER ===
