@@ -385,7 +385,8 @@ main {
     border-radius: 10px;
     padding: 1.25rem;
     display: flex;
-    gap: 1rem;
+    flex-direction: column;
+    gap: 0.75rem;
     align-items: flex-start;
     transition: all 0.3s ease;
     position: relative;
@@ -397,8 +398,79 @@ main {
     transform: translateX(4px);
 }
 
+/* Chapter Header - Priority & Marks Badges */
+.chapter-header {
+    width: 100%;
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    margin-bottom: 0.25rem;
+}
+
+/* Priority Badge */
+.priority-badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.35rem 0.75rem;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.priority-badge.priority-high {
+    background: #ffe0e0;
+    color: #d63031;
+}
+
+.priority-badge.priority-medium {
+    background: #fff3cd;
+    color: #f39c12;
+}
+
+.priority-badge.priority-low {
+    background: #d4edff;
+    color: #0084ff;
+}
+
+/* Marks Badge */
+.marks-badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.35rem 0.75rem;
+    background: #f0f0f0;
+    color: #667eea;
+    border-radius: 6px;
+    margin-left: auto;
+}
+
+/* Status Label */
+.status-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    display: inline-block;
+    margin-bottom: 0.5rem;
+}
+
+.status-label.strong {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.status-label.neutral {
+    background: #f3e5f5;
+    color: #7b1fa2;
+}
+
+.status-label.weak {
+    background: #ffe0b2;
+    color: #e65100;
+}
+
 /* Checkbox Area */
 .chapter-checkbox-area {
+    width: 100%;
     display: flex;
     align-items: center;
     margin-top: 0.25rem;
@@ -414,6 +486,7 @@ main {
 /* Chapter Content */
 .chapter-content {
     flex: 1;
+    width: 100%;
 }
 
 .chapter-title {
@@ -460,6 +533,16 @@ main {
     text-align: right;
 }
 
+/* Revision Count & Last Studied */
+.revision-count {
+    font-weight: 600;
+    color: #667eea;
+}
+
+.last-studied {
+    color: #999;
+}
+
 .chapter-meta {
     margin: 0;
     color: #bbb;
@@ -482,6 +565,9 @@ main {
     border-radius: 50%;
     transition: all 0.2s ease;
     flex-shrink: 0;
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
 }
 
 .chapter-delete-btn:hover {

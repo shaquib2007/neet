@@ -197,7 +197,13 @@ const ChapterTracker = {
         if (chapterName) {
             const subject = prompt('Enter subject (physics/chemistry/biology/math):');
             if (subject && ['physics', 'chemistry', 'biology', 'math'].includes(subject.toLowerCase())) {
-                this.addChapter(chapterName, subject.toLowerCase());
+                const priority = prompt('Enter priority (high/medium/low):', 'medium');
+                const marks = prompt('Enter estimated marks (e.g., 45):', '35');
+                const status = prompt('Enter status (strong/neutral/weak):', 'neutral');
+
+                if (priority && marks && status) {
+                    this.addChapter(chapterName, subject.toLowerCase(), priority.toLowerCase(), parseInt(marks), status.toLowerCase());
+                }
             } else {
                 alert('Please enter a valid subject!');
             }
@@ -205,7 +211,7 @@ const ChapterTracker = {
     },
 
     // Add chapter to DOM
-    addChapter: function (name, subject) {
+    addChapter: function (name, subject, priority = 'medium', marks = 35, status = 'neutral') {
         const chapterId = `${subject.substring(0, 2)}-${Date.now()}`;
         const container = document.querySelector(`[data-subject="${subject}"] .chapters-list`);
 
@@ -219,21 +225,43 @@ const ChapterTracker = {
         chapterCard.setAttribute('data-chapter-id', chapterId);
         chapterCard.setAttribute('data-subject', subject);
         chapterCard.setAttribute('data-progress', '0');
+        chapterCard.setAttribute('data-priority', priority);
+        chapterCard.setAttribute('data-marks', marks);
+        chapterCard.setAttribute('data-revisions', '0');
+        chapterCard.setAttribute('data-status', status);
+        chapterCard.setAttribute('data-last-studied', Date.now().toString());
+
+        const priorityColors = {
+            'high': 'priority-high',
+            'medium': 'priority-medium',
+            'low': 'priority-low'
+        };
+
+        const statusEmojis = {
+            'strong': '💪 Strong',
+            'neutral': '➡️ Neutral',
+            'weak': '⚠️ Weak'
+        };
 
         chapterCard.innerHTML = `
+            <div class="chapter-header">
+                <span class="priority-badge ${priorityColors[priority]}">${priority.toUpperCase()}</span>
+                <span class="marks-badge">${marks}/100</span>
+            </div>
             <div class="chapter-checkbox-area">
                 <input type="checkbox" class="chapter-checkbox" data-chapter-id="${chapterId}">
             </div>
             <div class="chapter-content">
                 <h4 class="chapter-title">${name}</h4>
                 <p class="chapter-subtitle">Recently added</p>
+                <div class="status-label ${status}">${statusEmojis[status]}</div>
                 <div class="chapter-progress">
                     <div class="progress-bar">
                         <div class="progress-fill" style="width: 0%"></div>
                     </div>
                     <span class="progress-percent">0%</span>
                 </div>
-                <p class="chapter-meta">Not started</p>
+                <p class="chapter-meta"><span class="revision-count">🔄 Not started</span> • <span class="last-studied">Just now</span></p>
             </div>
             <button class="chapter-delete-btn" data-chapter-id="${chapterId}">×</button>
         `;
@@ -254,7 +282,7 @@ const ChapterTracker = {
 
         // Save data
         this.saveData();
-        console.log(`✅ Chapter added: ${name}`);
+        console.log(`✅ Chapter added: ${name} (${priority} priority, ${marks} marks)`);
     },
 
     // Update chapter completion
@@ -268,6 +296,8 @@ const ChapterTracker = {
             chapterCard.style.opacity = '1';
         }
 
+        // Save data when completion changes
+        this.saveData();
         console.log(`📖 Chapter ${chapterId}: ${isCompleted ? 'Completed' : 'In Progress'}`);
     },
 
@@ -286,14 +316,101 @@ const ChapterTracker = {
 
     // Save data to localStorage
     saveData: function () {
-        // In future, we'll save chapter data here
-        console.log('💾 Data saved to LocalStorage');
+        try {
+            const chaptersData = {};
+
+            // Get all chapter cards and extract their data
+            document.querySelectorAll('.chapter-card').forEach(card => {
+                const id = card.getAttribute('data-chapter-id');
+                const title = card.querySelector('.chapter-title').textContent;
+                const subtitle = card.querySelector('.chapter-subtitle').textContent;
+                const progress = card.getAttribute('data-progress');
+                const priority = card.getAttribute('data-priority');
+                const marks = card.getAttribute('data-marks');
+                const revisions = card.getAttribute('data-revisions');
+                const status = card.getAttribute('data-status');
+                const subject = card.getAttribute('data-subject');
+                const isCompleted = card.querySelector('.chapter-checkbox').checked;
+
+                chaptersData[id] = {
+                    id,
+                    title,
+                    subtitle,
+                    subject,
+                    progress: parseInt(progress),
+                    priority,
+                    marks: parseInt(marks),
+                    revisions: parseInt(revisions),
+                    status,
+                    completed: isCompleted,
+                    lastStudied: card.getAttribute('data-last-studied')
+                };
+            });
+
+            localStorage.setItem(this.storageKey, JSON.stringify(chaptersData));
+            console.log('💾 All chapter data saved to LocalStorage:', Object.keys(chaptersData).length, 'chapters');
+            return true;
+        } catch (error) {
+            console.error('❌ Error saving data:', error);
+            return false;
+        }
     },
 
     // Load data from localStorage
     loadData: function () {
-        // In future, we'll load chapter data here
-        console.log('📂 Data loaded from LocalStorage');
+        try {
+            const saved = localStorage.getItem(this.storageKey);
+
+            if (!saved) {
+                console.log('📂 No saved data found in LocalStorage (first visit)');
+                return false;
+            }
+
+            const chaptersData = JSON.parse(saved);
+            console.log('📂 Loading', Object.keys(chaptersData).length, 'chapters from LocalStorage');
+
+            // Restore state for each saved chapter
+            Object.values(chaptersData).forEach(data => {
+                const card = document.querySelector(`[data-chapter-id="${data.id}"]`);
+                if (card) {
+                    // Update progress
+                    card.setAttribute('data-progress', data.progress);
+                    const progressFill = card.querySelector('.progress-fill');
+                    if (progressFill) {
+                        progressFill.style.width = data.progress + '%';
+                    }
+                    const progressPercent = card.querySelector('.progress-percent');
+                    if (progressPercent) {
+                        progressPercent.textContent = data.progress + '%';
+                    }
+
+                    // Update completion status
+                    const checkbox = card.querySelector('.chapter-checkbox');
+                    if (checkbox) {
+                        checkbox.checked = data.completed;
+                        if (data.completed) {
+                            card.style.opacity = '0.7';
+                        }
+                    }
+
+                    // Update revisions count
+                    const revisionSpan = card.querySelector('.revision-count');
+                    if (revisionSpan) {
+                        if (data.revisions === 0) {
+                            revisionSpan.textContent = '🔄 Not started';
+                        } else {
+                            revisionSpan.textContent = `🔄 Revised ${data.revisions}x`;
+                        }
+                    }
+                }
+            });
+
+            console.log('✅ Chapter data restored successfully');
+            return true;
+        } catch (error) {
+            console.error('❌ Error loading data:', error);
+            return false;
+        }
     },
 
     // Get all chapters
@@ -311,6 +428,122 @@ const ChapterTracker = {
         const allChapters = this.getAllChapters().length;
         const completedChapters = document.querySelectorAll('.chapter-checkbox:checked').length;
         return allChapters > 0 ? Math.round((completedChapters / allChapters) * 100) : 0;
+    },
+
+    // Get subject-wise progress
+    getSubjectProgress: function (subject) {
+        const chapters = this.getChaptersBySubject(subject);
+        if (chapters.length === 0) return 0;
+
+        let totalProgress = 0;
+        chapters.forEach(chapter => {
+            const progress = parseInt(chapter.getAttribute('data-progress')) || 0;
+            totalProgress += progress;
+        });
+
+        return Math.round(totalProgress / chapters.length);
+    },
+
+    // Get subject statistics
+    getSubjectStats: function (subject) {
+        const chapters = this.getChaptersBySubject(subject);
+        const completed = Array.from(chapters).filter(ch => ch.querySelector('.chapter-checkbox').checked).length;
+        const totalMarks = Array.from(chapters).reduce((sum, ch) => {
+            return sum + (parseInt(ch.getAttribute('data-marks')) || 0);
+        }, 0);
+        const weakCount = Array.from(chapters).filter(ch => ch.getAttribute('data-status') === 'weak').length;
+
+        return {
+            total: chapters.length,
+            completed,
+            progress: this.getSubjectProgress(subject),
+            totalMarks,
+            weakCount,
+            completion: chapters.length > 0 ? Math.round((completed / chapters.length) * 100) : 0
+        };
+    },
+
+    // Get all weak chapters
+    getWeakChapters: function () {
+        return document.querySelectorAll('[data-status="weak"]');
+    },
+
+    // Get high priority chapters
+    getHighPriorityChapters: function () {
+        return document.querySelectorAll('[data-priority="high"]');
+    },
+
+    // Get total marks
+    getTotalMarks: function () {
+        let total = 0;
+        document.querySelectorAll('.chapter-card').forEach(chapter => {
+            const marks = parseInt(chapter.getAttribute('data-marks')) || 0;
+            total += marks;
+        });
+        return total;
+    },
+
+    // Update chapter progress (0-100%)
+    updateProgress: function (chapterId, progressValue) {
+        const chapter = document.querySelector(`[data-chapter-id="${chapterId}"]`);
+        if (!chapter) return false;
+
+        // Validate progress value
+        progressValue = Math.max(0, Math.min(100, parseInt(progressValue)));
+
+        // Update data attribute
+        chapter.setAttribute('data-progress', progressValue);
+
+        // Update progress bar
+        const progressFill = chapter.querySelector('.progress-fill');
+        if (progressFill) {
+            progressFill.style.width = progressValue + '%';
+        }
+
+        // Update progress percent text
+        const progressPercent = chapter.querySelector('.progress-percent');
+        if (progressPercent) {
+            progressPercent.textContent = progressValue + '%';
+        }
+
+        // Update revision count if completed (100%)
+        if (progressValue === 100) {
+            let revisions = parseInt(chapter.getAttribute('data-revisions')) || 0;
+            revisions++;
+            chapter.setAttribute('data-revisions', revisions);
+
+            const revisionSpan = chapter.querySelector('.revision-count');
+            if (revisionSpan) {
+                revisionSpan.textContent = `🔄 Revised ${revisions}x`;
+            }
+        }
+
+        // Save data
+        this.saveData();
+        console.log(`📈 Chapter ${chapterId} progress updated to ${progressValue}%`);
+        return true;
+    },
+
+    // Get dashboard summary
+    getDashboardSummary: function () {
+        const allChapters = this.getAllChapters().length;
+        const completed = document.querySelectorAll('.chapter-checkbox:checked').length;
+        const weakChapters = this.getWeakChapters().length;
+        const highPriority = this.getHighPriorityChapters().length;
+        const totalMarks = this.getTotalMarks();
+
+        return {
+            totalChapters: allChapters,
+            completedChapters: completed,
+            overallProgress: this.getCompletionPercentage(),
+            weakChapters,
+            highPriorityChapters: highPriority,
+            totalMarks,
+            physicsStats: this.getSubjectStats('physics'),
+            chemistryStats: this.getSubjectStats('chemistry'),
+            biologyStats: this.getSubjectStats('biology'),
+            mathStats: this.getSubjectStats('math')
+        };
     }
 };
 
