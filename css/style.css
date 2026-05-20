@@ -2925,93 +2925,6 @@ html {
     flex-shrink: 0;
 }
 
-.rm-btn-sm {
-    padding: 0.55rem 1rem;
-    font-size: 0.85rem;
-}
-
-.rm-btn-ghost {
-    background: transparent;
-    color: #6b7280;
-    border: none;
-    box-shadow: none;
-}
-
-.rm-btn-ghost:hover:not(.is-disabled) {
-    color: #667eea;
-    background: #f3f4f6;
-    transform: none;
-}
-
-/* Schedule tab — compact PDF strip */
-.sch-pdf-strip {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    flex-wrap: wrap;
-    background: white;
-    border-radius: 14px;
-    padding: 1rem 1.25rem;
-    margin-bottom: 1.5rem;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
-    border: 1px solid #e5e7eb;
-    transition: box-shadow 0.25s ease;
-}
-
-.sch-pdf-strip:hover {
-    box-shadow: 0 6px 22px rgba(102, 126, 234, 0.12);
-}
-
-.sch-pdf-strip-left {
-    display: flex;
-    align-items: center;
-    gap: 0.85rem;
-    flex-wrap: wrap;
-    flex: 1;
-    min-width: 200px;
-}
-
-.sch-pdf-strip-icon {
-    font-size: 1.75rem;
-    line-height: 1;
-    background: linear-gradient(135deg, #eef2ff, #e0e7ff);
-    width: 48px;
-    height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 12px;
-}
-
-.sch-pdf-strip-title {
-    font-size: 1rem;
-    font-weight: 700;
-    color: #1f2937;
-    margin: 0 0 0.15rem;
-}
-
-.sch-pdf-strip-meta {
-    margin: 0;
-    font-size: 0.78rem;
-    color: #9ca3af;
-}
-
-.sch-pdf-strip-meta code {
-    background: #f3f4f6;
-    color: #6366f1;
-    padding: 0.1rem 0.35rem;
-    border-radius: 4px;
-    font-size: 0.75em;
-}
-
-.sch-pdf-strip-actions {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.5rem;
-}
-
 @media (max-width: 600px) {
     .rm-actions {
         flex-direction: column;
@@ -3024,18 +2937,5 @@ html {
     .rm-drop-steps {
         flex-direction: column;
         align-items: stretch;
-    }
-
-    .sch-pdf-strip {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .sch-pdf-strip-actions {
-        flex-direction: column;
-    }
-
-    .sch-pdf-strip-actions .rm-btn {
-        width: 100%;
     }
 }

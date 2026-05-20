@@ -23,7 +23,6 @@
             <button class="nav-btn" data-tab="biology-tracker">Biology</button>
             <button class="nav-btn" data-tab="chemistry-tracker">Chemistry</button>
             <button class="nav-btn" data-tab="physics-tracker">Physics</button>
-            <button class="nav-btn" data-tab="roadmap">Roadmap</button>
             <button class="nav-btn" data-tab="schedule">Schedule</button>
             <button class="nav-btn" data-tab="daily-tracker">📅 Daily</button>
             <button class="nav-btn" data-tab="analytics">Analytics</button>
@@ -440,69 +439,6 @@
             </div>
         </section>
 
-        <!-- Roadmap Tab — Strategy PDF -->
-        <section id="roadmap" class="tab-content">
-            <div class="rm-header">
-                <div>
-                    <h2 class="rm-title">NEET Strategy Roadmap</h2>
-                    <p class="rm-subtitle">Your full 31-day re-exam plan in one PDF — open or download anytime</p>
-                </div>
-                <span id="rm-pdf-status" class="rm-status rm-status-missing">Checking PDF…</span>
-            </div>
-
-            <div class="sch-card rm-pdf-card">
-                <div class="sch-card-header">
-                    <h3 class="sch-card-title">📄 Strategy PDF</h3>
-                    <span class="sch-card-sub">NEET_31Day_Strategy.pdf</span>
-                </div>
-
-                <div id="rm-drop-zone" class="rm-drop-zone" role="region" aria-label="PDF upload instructions">
-                    <div class="rm-drop-icon" aria-hidden="true">
-                        <svg viewBox="0 0 64 80" width="56" height="70" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M8 4h32l16 16v56a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4V8a4 4 0 0 1 4-4z" fill="#eef2ff" stroke="#667eea" stroke-width="2"/>
-                            <path d="M40 4v16h16" stroke="#667eea" stroke-width="2" stroke-linejoin="round"/>
-                            <text x="32" y="52" text-anchor="middle" font-size="14" font-weight="800" fill="#667eea">PDF</text>
-                        </svg>
-                    </div>
-                    <p class="rm-drop-title">Drop your strategy PDF here</p>
-                    <p class="rm-drop-hint">Place your PDF inside <code>assets/pdfs/</code></p>
-                    <p class="rm-drop-filename">File name: <strong>NEET_31Day_Strategy.pdf</strong></p>
-                    <div class="rm-drop-steps">
-                        <span class="rm-step">1. Open project folder</span>
-                        <span class="rm-step">2. Go to <code>assets/pdfs/</code></span>
-                        <span class="rm-step">3. Paste your PDF &amp; refresh</span>
-                    </div>
-                </div>
-
-                <div class="rm-actions">
-                    <a id="rm-pdf-open"
-                        href="assets/pdfs/NEET_31Day_Strategy.pdf"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="rm-btn rm-btn-outline">
-                        <span class="rm-btn-icon" aria-hidden="true">👁</span>
-                        Open PDF in Browser
-                    </a>
-                    <a id="rm-pdf-download"
-                        href="assets/pdfs/NEET_31Day_Strategy.pdf"
-                        download="NEET_31Day_Strategy.pdf"
-                        class="rm-btn rm-btn-primary">
-                        <span class="rm-btn-icon" aria-hidden="true">⬇</span>
-                        Download Full Strategy PDF
-                    </a>
-                </div>
-
-                <p class="rm-deploy-note">
-                    Works on <strong>Live Server</strong> locally and on <strong>Vercel</strong> after you commit the PDF to this folder.
-                </p>
-            </div>
-
-            <div class="rm-tip-card">
-                <span class="rm-tip-icon">💡</span>
-                <p>Use this PDF with the <strong>Schedule</strong> tab timeline — mark days complete as you follow the plan.</p>
-            </div>
-        </section>
-
         <!-- Schedule Tab — 31-Day NEET Strategy System -->
         <section id="schedule" class="tab-content">
 
@@ -530,32 +466,6 @@
                         </svg>
                         <span class="sch-ring-pct" id="sch-overall-pct">0%</span>
                     </div>
-                </div>
-            </div>
-
-            <!-- Strategy PDF (compact) -->
-            <div class="sch-pdf-strip">
-                <div class="sch-pdf-strip-left">
-                    <span class="sch-pdf-strip-icon" aria-hidden="true">📄</span>
-                    <div>
-                        <h3 class="sch-pdf-strip-title">31-Day Strategy PDF</h3>
-                        <p class="sch-pdf-strip-meta"><code>assets/pdfs/NEET_31Day_Strategy.pdf</code></p>
-                    </div>
-                    <span id="sch-pdf-status" class="rm-status rm-status-missing">Checking…</span>
-                </div>
-                <div class="sch-pdf-strip-actions">
-                    <a id="sch-pdf-open"
-                        href="assets/pdfs/NEET_31Day_Strategy.pdf"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="rm-btn rm-btn-outline rm-btn-sm">Open</a>
-                    <a id="sch-pdf-download"
-                        href="assets/pdfs/NEET_31Day_Strategy.pdf"
-                        download="NEET_31Day_Strategy.pdf"
-                        class="rm-btn rm-btn-primary rm-btn-sm">Download PDF</a>
-                    <button type="button" id="sch-pdf-roadmap-link" class="rm-btn rm-btn-ghost rm-btn-sm">
-                        Upload guide →
-                    </button>
                 </div>
             </div>
 
@@ -938,8 +848,6 @@
     <script src="js/dailyTracker.js"></script>
     <!-- 31-Day Schedule Engine -->
     <script src="js/scheduleEngine.js"></script>
-    <!-- Roadmap PDF -->
-    <script src="js/roadmapPdf.js"></script>
 </body>
 
 </html>

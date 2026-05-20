@@ -88,10 +88,11 @@ const TabManager = {
         }
     },
 
-    // Restore last viewed tab
+    // Restore last viewed tab (fallback if saved tab was removed)
     restoreLastTab: function () {
         const savedTab = localStorage.getItem(this.storageKey) || this.defaultTab;
-        this.switchTab(savedTab);
+        const tabName = document.getElementById(savedTab) ? savedTab : this.defaultTab;
+        this.switchTab(tabName);
     },
 
     // Get current active tab
