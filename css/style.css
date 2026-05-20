@@ -3206,7 +3206,86 @@ html {
     flex-shrink: 0;
 }
 
+.rm-btn-compact {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+}
+
+/* Schedule — compact PDF quick access (utility only) */
+.sch-pdf-quick {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+    padding: 0.85rem 1.15rem;
+    background: linear-gradient(135deg, #fafbff 0%, #eef2ff 50%, #f5f3ff 100%);
+    border: 1px solid #c7d2fe;
+    border-radius: 14px;
+    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.1);
+    transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.sch-pdf-quick:hover {
+    box-shadow: 0 6px 22px rgba(102, 126, 234, 0.16);
+}
+
+.sch-pdf-quick-left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    flex: 1;
+    min-width: 180px;
+}
+
+.sch-pdf-quick-icon {
+    font-size: 1.5rem;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 11px;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.35);
+}
+
+.sch-pdf-quick-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0 0 0.1rem;
+}
+
+.sch-pdf-quick-sub {
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin: 0;
+}
+
+.sch-pdf-quick-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+}
+
 @media (max-width: 600px) {
+    .sch-pdf-quick {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .sch-pdf-quick-actions {
+        flex-direction: column;
+    }
+
+    .sch-pdf-quick-actions .rm-btn {
+        width: 100%;
+    }
+
     .rm-actions {
         flex-direction: column;
     }

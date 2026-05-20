@@ -1,6 +1,9 @@
 /*
-   Roadmap — Strategy PDF section
-   Static PDF served from assets/pdfs/ (no server upload).
+   Strategy PDF — shared module
+   ────────────────────────────
+   Single source: assets/pdfs/NEET_31Day_Strategy.pdf
+   - Roadmap tab: full upload guide + large actions
+   - Schedule tab: compact quick-access card only
 */
 
 const RoadmapPdf = {
@@ -8,17 +11,28 @@ const RoadmapPdf = {
     fileName: 'NEET_31Day_Strategy.pdf',
 
     init: function () {
+        this._applyLinks();
         this.cacheDOM();
         if (this.zone) this.attachDropZone();
         this.checkAvailability();
-        console.log('📄 Roadmap PDF section ready');
+        console.log('📄 Strategy PDF ready (Roadmap + Schedule quick access)');
+    },
+
+    _applyLinks: function () {
+        document.querySelectorAll('[data-pdf-open]').forEach(el => {
+            el.href = this.pdfPath;
+        });
+        document.querySelectorAll('[data-pdf-download]').forEach(el => {
+            el.href = this.pdfPath;
+            el.setAttribute('download', this.fileName);
+        });
     },
 
     cacheDOM: function () {
         this.zone = document.getElementById('rm-drop-zone');
-        this.statusEl = document.getElementById('rm-pdf-status');
-        this.openBtn = document.getElementById('rm-pdf-open');
-        this.downloadBtn = document.getElementById('rm-pdf-download');
+        this.statusEls = document.querySelectorAll('[data-pdf-status]');
+        this.openBtns = document.querySelectorAll('[data-pdf-open]');
+        this.downloadBtns = document.querySelectorAll('[data-pdf-download]');
     },
 
     attachDropZone: function () {
@@ -43,7 +57,7 @@ const RoadmapPdf = {
         this.zone.addEventListener('drop', e => {
             const file = e.dataTransfer?.files?.[0];
             if (file && file.type === 'application/pdf' && hint) {
-                hint.textContent = `"${file.name}" — copy this file into assets/pdfs/ as NEET_31Day_Strategy.pdf`;
+                hint.textContent = `"${file.name}" — copy into assets/pdfs/ as NEET_31Day_Strategy.pdf`;
             }
         });
     },
@@ -55,16 +69,19 @@ const RoadmapPdf = {
     },
 
     setStatus: function (ready) {
-        if (!this.statusEl) return;
+        this.statusEls.forEach(el => {
+            el.classList.toggle('rm-status-ready', ready);
+            el.classList.toggle('rm-status-missing', !ready);
+            if (el.id === 'sch-pdf-status') {
+                el.textContent = ready ? 'Ready' : 'Missing';
+            } else {
+                el.textContent = ready
+                    ? 'PDF ready'
+                    : 'PDF not found — add file to assets/pdfs/';
+            }
+        });
 
-        this.statusEl.classList.toggle('rm-status-ready', ready);
-        this.statusEl.classList.toggle('rm-status-missing', !ready);
-        this.statusEl.textContent = ready
-            ? 'PDF ready'
-            : 'PDF not found — add file to assets/pdfs/';
-
-        [this.openBtn, this.downloadBtn].forEach(btn => {
-            if (!btn) return;
+        [...this.openBtns, ...this.downloadBtns].forEach(btn => {
             if (ready) {
                 btn.removeAttribute('aria-disabled');
                 btn.classList.remove('is-disabled');
