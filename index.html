@@ -17,8 +17,181 @@
     </header>
 
     <main>
-        <!-- Replace this with your dashboard content -->
-        <p>Your dashboard will go here</p>
+        <!-- Dashboard Navigation -->
+        <nav class="dashboard-nav">
+            <button class="nav-btn active" data-tab="overview">Overview</button>
+            <button class="nav-btn" data-tab="tracker">Tracker</button>
+            <button class="nav-btn" data-tab="schedule">Schedule</button>
+            <button class="nav-btn" data-tab="analytics">Analytics</button>
+        </nav>
+
+        <!-- Overview Tab -->
+        <section id="overview" class="tab-content active">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Days Studied</h3>
+                    <p class="stat-value">45</p>
+                    <p class="stat-label">streak</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Topics Covered</h3>
+                    <p class="stat-value">28</p>
+                    <p class="stat-label">out of 50</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Accuracy</h3>
+                    <p class="stat-value">78%</p>
+                    <p class="stat-label">overall</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Study Time</h3>
+                    <p class="stat-value">245h</p>
+                    <p class="stat-label">total</p>
+                </div>
+            </div>
+
+            <div class="progress-section">
+                <h2>Overall Progress</h2>
+                <div class="progress-bar-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 56%"></div>
+                    </div>
+                    <p class="progress-text">56% Complete</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tracker Tab -->
+        <section id="tracker" class="tab-content">
+            <div class="tracker-header">
+                <h2>Topic Tracker</h2>
+                <button id="addTopicBtn" class="add-btn">+ Add Topic</button>
+            </div>
+
+            <div id="topicsList" class="topics-list">
+                <div class="topic-card">
+                    <div class="topic-header">
+                        <input type="checkbox" class="topic-checkbox" checked>
+                        <h3>Physics - Mechanics</h3>
+                    </div>
+                    <div class="topic-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 85%"></div>
+                        </div>
+                        <span>85%</span>
+                    </div>
+                    <p class="topic-date">Last studied: 2 days ago</p>
+                </div>
+
+                <div class="topic-card">
+                    <div class="topic-header">
+                        <input type="checkbox" class="topic-checkbox" checked>
+                        <h3>Chemistry - Organic</h3>
+                    </div>
+                    <div class="topic-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 65%"></div>
+                        </div>
+                        <span>65%</span>
+                    </div>
+                    <p class="topic-date">Last studied: Today</p>
+                </div>
+
+                <div class="topic-card">
+                    <div class="topic-header">
+                        <input type="checkbox" class="topic-checkbox">
+                        <h3>Biology - Genetics</h3>
+                    </div>
+                    <div class="topic-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 40%"></div>
+                        </div>
+                        <span>40%</span>
+                    </div>
+                    <p class="topic-date">Last studied: 1 week ago</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Schedule Tab -->
+        <section id="schedule" class="tab-content">
+            <h2>Weekly Study Schedule</h2>
+            <div class="schedule-grid">
+                <div class="schedule-day">
+                    <h3>Monday</h3>
+                    <ul>
+                        <li>Physics: 2h</li>
+                        <li>Chemistry: 1.5h</li>
+                    </ul>
+                </div>
+                <div class="schedule-day">
+                    <h3>Tuesday</h3>
+                    <ul>
+                        <li>Biology: 2h</li>
+                        <li>Math: 1.5h</li>
+                    </ul>
+                </div>
+                <div class="schedule-day">
+                    <h3>Wednesday</h3>
+                    <ul>
+                        <li>Physics: 2h</li>
+                        <li>Chemistry: 1.5h</li>
+                    </ul>
+                </div>
+                <div class="schedule-day">
+                    <h3>Thursday</h3>
+                    <ul>
+                        <li>Biology: 2h</li>
+                        <li>Math: 1.5h</li>
+                    </ul>
+                </div>
+                <div class="schedule-day">
+                    <h3>Friday</h3>
+                    <ul>
+                        <li>Mock Test: 3h</li>
+                        <li>Revision: 1h</li>
+                    </ul>
+                </div>
+                <div class="schedule-day">
+                    <h3>Saturday</h3>
+                    <ul>
+                        <li>Weak Topics: 2h</li>
+                        <li>Practice: 2h</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Analytics Tab -->
+        <section id="analytics" class="tab-content">
+            <h2>Performance Analytics</h2>
+            <div class="analytics-grid">
+                <div class="analytics-card">
+                    <h3>Subject Performance</h3>
+                    <div class="mini-chart">
+                        <div class="chart-bar" style="height: 85%">Physics<span>85%</span></div>
+                        <div class="chart-bar" style="height: 78%">Chemistry<span>78%</span></div>
+                        <div class="chart-bar" style="height: 72%">Biology<span>72%</span></div>
+                        <div class="chart-bar" style="height: 88%">Math<span>88%</span></div>
+                    </div>
+                </div>
+
+                <div class="analytics-card">
+                    <h3>Weekly Study Hours</h3>
+                    <p class="stat-value">12.5h</p>
+                    <p>Avg per week</p>
+                </div>
+
+                <div class="analytics-card">
+                    <h3>Mock Test Scores</h3>
+                    <ul class="score-list">
+                        <li>Test 1: <strong>680/720</strong></li>
+                        <li>Test 2: <strong>695/720</strong></li>
+                        <li>Test 3: <strong>710/720</strong></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
     </main>
 
     <!-- Link JavaScript file here (at the end of body) -->
