@@ -439,54 +439,178 @@
             </div>
         </section>
 
-        <!-- Schedule Tab -->
+        <!-- Schedule Tab — 31-Day NEET Strategy System -->
         <section id="schedule" class="tab-content">
-            <h2>Weekly Study Schedule</h2>
-            <div class="schedule-grid">
-                <div class="schedule-day">
-                    <h3>Monday</h3>
-                    <ul>
-                        <li>Physics: 2h</li>
-                        <li>Chemistry: 1.5h</li>
-                    </ul>
+
+            <!-- Top Banner -->
+            <div class="sch-banner">
+                <div class="sch-banner-left">
+                    <div class="sch-phase-badge" id="sch-phase-badge">Phase 1</div>
+                    <div>
+                        <h2 class="sch-main-title">31-Day NEET Re-Exam Strategy</h2>
+                        <p class="sch-subtitle" id="sch-phase-label">Foundation Revision · Days 1–10</p>
+                    </div>
                 </div>
-                <div class="schedule-day">
-                    <h3>Tuesday</h3>
-                    <ul>
-                        <li>Biology: 2h</li>
-                        <li>Math: 1.5h</li>
-                    </ul>
-                </div>
-                <div class="schedule-day">
-                    <h3>Wednesday</h3>
-                    <ul>
-                        <li>Physics: 2h</li>
-                        <li>Chemistry: 1.5h</li>
-                    </ul>
-                </div>
-                <div class="schedule-day">
-                    <h3>Thursday</h3>
-                    <ul>
-                        <li>Biology: 2h</li>
-                        <li>Math: 1.5h</li>
-                    </ul>
-                </div>
-                <div class="schedule-day">
-                    <h3>Friday</h3>
-                    <ul>
-                        <li>Mock Test: 3h</li>
-                        <li>Revision: 1h</li>
-                    </ul>
-                </div>
-                <div class="schedule-day">
-                    <h3>Saturday</h3>
-                    <ul>
-                        <li>Weak Topics: 2h</li>
-                        <li>Practice: 2h</li>
-                    </ul>
+                <div class="sch-banner-right">
+                    <div class="sch-countdown-box">
+                        <span class="sch-countdown-num" id="sch-days-remaining">31</span>
+                        <span class="sch-countdown-label">days left</span>
+                    </div>
+                    <div class="sch-overall-ring-wrap">
+                        <svg viewBox="0 0 60 60" class="sch-mini-ring">
+                            <circle cx="30" cy="30" r="24" fill="none" stroke="#e5e7eb" stroke-width="5"/>
+                            <circle id="sch-overall-ring" cx="30" cy="30" r="24" fill="none"
+                                stroke="#667eea" stroke-width="5" stroke-linecap="round"
+                                stroke-dasharray="150.8" stroke-dashoffset="150.8"
+                                transform="rotate(-90 30 30)"/>
+                        </svg>
+                        <span class="sch-ring-pct" id="sch-overall-pct">0%</span>
+                    </div>
                 </div>
             </div>
+
+            <!-- Phase Overview Cards -->
+            <div class="sch-phases-row">
+                <div class="sch-phase-card" id="sch-phase-1">
+                    <div class="sch-phase-icon">🔬</div>
+                    <div class="sch-phase-info">
+                        <div class="sch-phase-name">Phase 1</div>
+                        <div class="sch-phase-desc">Foundation Revision</div>
+                        <div class="sch-phase-days">Days 1–10</div>
+                    </div>
+                    <div class="sch-phase-pct" id="sch-p1-pct">0%</div>
+                </div>
+                <div class="sch-phase-card" id="sch-phase-2">
+                    <div class="sch-phase-icon">📚</div>
+                    <div class="sch-phase-info">
+                        <div class="sch-phase-name">Phase 2</div>
+                        <div class="sch-phase-desc">Full Syllabus Sweep</div>
+                        <div class="sch-phase-days">Days 11–20</div>
+                    </div>
+                    <div class="sch-phase-pct" id="sch-p2-pct">0%</div>
+                </div>
+                <div class="sch-phase-card" id="sch-phase-3">
+                    <div class="sch-phase-icon">🎯</div>
+                    <div class="sch-phase-info">
+                        <div class="sch-phase-name">Phase 3</div>
+                        <div class="sch-phase-desc">Mock Tests + Analysis</div>
+                        <div class="sch-phase-days">Days 21–28</div>
+                    </div>
+                    <div class="sch-phase-pct" id="sch-p3-pct">0%</div>
+                </div>
+                <div class="sch-phase-card" id="sch-phase-4">
+                    <div class="sch-phase-icon">🚀</div>
+                    <div class="sch-phase-info">
+                        <div class="sch-phase-name">Phase 4</div>
+                        <div class="sch-phase-desc">Final Sprint</div>
+                        <div class="sch-phase-days">Days 29–31</div>
+                    </div>
+                    <div class="sch-phase-pct" id="sch-p4-pct">0%</div>
+                </div>
+            </div>
+
+            <!-- 31-Day Timeline -->
+            <div class="sch-card">
+                <div class="sch-card-header">
+                    <h3 class="sch-card-title">📅 31-Day Timeline</h3>
+                    <span class="sch-card-sub">Click any day to mark it complete</span>
+                </div>
+                <div id="sch-timeline" class="sch-timeline"></div>
+            </div>
+
+            <!-- Today's Timetable + Daily Checklist -->
+            <div class="sch-two-col">
+                <div class="sch-card">
+                    <div class="sch-card-header">
+                        <h3 class="sch-card-title">⏰ Today's Timetable</h3>
+                        <span class="sch-badge" id="sch-today-badge">Day 1</span>
+                    </div>
+                    <div id="sch-timetable" class="sch-timetable"></div>
+                </div>
+                <div class="sch-card">
+                    <div class="sch-card-header">
+                        <h3 class="sch-card-title">✅ Daily Checklist</h3>
+                        <span class="sch-check-count" id="sch-check-count">0/7 done</span>
+                    </div>
+                    <div class="sch-checklist-bar-wrap">
+                        <div class="sch-checklist-bar" id="sch-checklist-bar"></div>
+                    </div>
+                    <div id="sch-checklist" class="sch-checklist"></div>
+                </div>
+            </div>
+
+            <!-- Productivity + Stats -->
+            <div class="sch-stats-row">
+                <div class="sch-stat-card sch-stat-prod">
+                    <svg viewBox="0 0 80 80" class="sch-prod-svg">
+                        <circle cx="40" cy="40" r="32" fill="none" stroke="#e5e7eb" stroke-width="7"/>
+                        <circle id="sch-prod-ring" cx="40" cy="40" r="32" fill="none"
+                            stroke="#667eea" stroke-width="7" stroke-linecap="round"
+                            stroke-dasharray="201" stroke-dashoffset="201"
+                            transform="rotate(-90 40 40)"/>
+                    </svg>
+                    <div class="sch-stat-info">
+                        <div class="sch-stat-val" id="sch-prod-pct">0%</div>
+                        <div class="sch-stat-label">Today's Productivity</div>
+                    </div>
+                </div>
+                <div class="sch-stat-card">
+                    <div class="sch-stat-icon">📚</div>
+                    <div class="sch-stat-info">
+                        <div class="sch-stat-val" id="sch-hours-today">0 / 8h</div>
+                        <div class="sch-stat-label">Study Hours Today</div>
+                    </div>
+                </div>
+                <div class="sch-stat-card">
+                    <div class="sch-stat-icon">🔥</div>
+                    <div class="sch-stat-info">
+                        <div class="sch-stat-val" id="sch-streak">0</div>
+                        <div class="sch-stat-label">Day Streak</div>
+                    </div>
+                </div>
+                <div class="sch-stat-card">
+                    <div class="sch-stat-icon">📊</div>
+                    <div class="sch-stat-info">
+                        <div class="sch-stat-val" id="sch-days-done">0 / 31</div>
+                        <div class="sch-stat-label">Days Completed</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hours Logger + Weekly Bar -->
+            <div class="sch-card">
+                <div class="sch-card-header">
+                    <h3 class="sch-card-title">⏱ Log Study Hours</h3>
+                </div>
+                <div class="sch-hours-form">
+                    <input type="number" id="sch-hours-input" class="sch-input"
+                        min="0" max="16" step="0.5" placeholder="Hours studied today (e.g. 6.5)">
+                    <button id="sch-hours-save" class="sch-btn sch-btn-primary">Save Hours</button>
+                </div>
+                <div class="sch-week-bars" id="sch-week-bars"></div>
+            </div>
+
+            <!-- Phase Focus Topics -->
+            <div class="sch-card">
+                <div class="sch-card-header">
+                    <h3 class="sch-card-title">🎯 Current Phase Focus Topics</h3>
+                    <span id="sch-focus-phase-label" class="sch-badge">Phase 1</span>
+                </div>
+                <div id="sch-focus-topics" class="sch-focus-grid"></div>
+            </div>
+
+            <!-- Daily Notes -->
+            <div class="sch-card">
+                <div class="sch-card-header">
+                    <h3 class="sch-card-title">📝 Daily Notes & Revision Reminders</h3>
+                    <span id="sch-notes-saved" class="sch-saved-tag" style="opacity:0">Saved ✓</span>
+                </div>
+                <textarea id="sch-notes" class="sch-notes"
+                    placeholder="Write today's plan, weak topics, mistakes, revision reminders..."></textarea>
+            </div>
+
         </section>
+
 
         <!-- ============================================
              DAILY TRACKER TAB
@@ -707,6 +831,8 @@
     <script src="js/script.js"></script>
     <!-- Daily Tracker System -->
     <script src="js/dailyTracker.js"></script>
+    <!-- 31-Day Schedule Engine -->
+    <script src="js/scheduleEngine.js"></script>
 </body>
 
 </html>
